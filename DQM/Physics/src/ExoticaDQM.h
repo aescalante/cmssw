@@ -168,7 +168,7 @@ private:
   edm::EDGetTokenT<EBRecHitCollection> ecalBarrelRecHitToken_; // reducedEcalRecHitsEB
   edm::EDGetTokenT<EERecHitCollection> ecalEndcapRecHitToken_; // reducedEcalRecHitsEE
 
-  edm::EDGetTokenT<reco::JetCorrector> correctorToken_;
+  //edm::EDGetTokenT<reco::JetCorrector> correctorToken_;
 
   ///////////////////////////
   // Parameters

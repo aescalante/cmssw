@@ -128,7 +128,7 @@ ExoticaDQM::ExoticaDQM(const edm::ParameterSet& ps){
   ecalEndcapRecHitToken_ = consumes<EERecHitCollection>(
       ps.getUntrackedParameter<InputTag>("ecalEndcapRecHit", InputTag("reducedEcalRecHitsEE")));
 
-  correctorToken_ = consumes<reco::JetCorrector>(ps.getParameter<edm::InputTag>("corrector"));
+  //correctorToken_ = consumes<reco::JetCorrector>(ps.getParameter<edm::InputTag>("corrector"));
 
   //Cuts - MultiJets
   jetID                    = new reco::helper::JetIDHelper(ps.getParameter<ParameterSet>("JetIDParams"), consumesCollector());
@@ -395,12 +395,13 @@ void ExoticaDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   //Getting information from the RecoObjects
   dijet_countPFJet_=0;
   monojet_countPFJet_=0;
-  edm::Handle<reco::JetCorrector> jetCorrector;
-  iEvent.getByToken( correctorToken_, jetCorrector );
+  // edm::Handle<reco::JetCorrector> jetCorrector;
+  // iEvent.getByToken( correctorToken_, jetCorrector );
 
   PFJetCollection::const_iterator pfjet_ = pfjets.begin();
   for(; pfjet_ != pfjets.end(); ++pfjet_){
-    double scale = jetCorrector->correction(*pfjet_);
+    //    double scale = jetCorrector->correction(*pfjet_);
+    double scale = 1.;
     if(scale*pfjet_->pt()>PFJetPt[0]){
       PFJetPt[1]   = PFJetPt[0];
       PFJetPx[1]   = PFJetPx[0];
