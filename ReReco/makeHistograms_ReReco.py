@@ -6,7 +6,8 @@ ROOT.gROOT.SetBatch(True)
 
 # Parse command-line arguments
 parser = argparse.ArgumentParser(description='Process RECO file and display particle information')
-parser.add_argument('--input', '-i', type=str, default='ReReco_chi2_60.0_disp_0.5_sag_2.0_sig_3.root', help='Input ROOT file path')
+parser.add_argument('--input', '-i', type=str, default='', help='Input ROOT file path')
+parser.add_argument('--samples', '-s', type=str, default='/pnfs/ciemat.es/data/cms/store/user/escalant/displacedGlobalMuon_ReReco', help='Directory where ReReco samples are stored')
 parser.add_argument('-o', '--output', type=str, default=None, help='Output ROOT file for histograms (default: derived from input)')
 args = parser.parse_args()
 
@@ -27,13 +28,15 @@ handleDisplacedMuons = Handle("std::vector<reco::Track>")
 labelDisplacedMuons = ("displacedGlobalMuons", "", "RECO")
 
 # Check if input file exists
-if not os.path.exists(args.input):
-    print(f"Error: Input file '{args.input}' not found.")
+inputFile = os.path.join(args.samples, args.input)
+if not os.path.exists(inputFile):
+    print(f"Error: Input file '{inputFile}' not found.")
     exit(1)
 
-print(f"Opening file: {args.input}")
-events = Events(args.input)
+print(f"Opening file: {inputFile}")
+events = Events(inputFile)
 total_events = events.size()
+event_count = 0 
 total_muons = 0
 print(f"Total events in file: {total_events}")
 
@@ -56,15 +59,15 @@ h_pt = ROOT.TH1F("h_pt", "Displaced Global Muon p_{T}", 100, 0, 100)
 h_pt.GetXaxis().SetTitle("p_{T} [GeV]")
 h_pt.GetYaxis().SetTitle("Entries")
 
-h_eta = ROOT.TH1F("h_pt", "Displaced Global Muon #eta", 30, -2.5, 2.5)
+h_eta = ROOT.TH1F("h_eta", "Displaced Global Muon #eta", 30, -2.5, 2.5)
 h_eta.GetXaxis().SetTitle("#eta ")
 h_eta.GetYaxis().SetTitle("Entries")
 
-for i,event in enumerate(events):
-    
+for j,event in enumerate(events):
     # print the event number
     print("=="*80)
-    print("event number: ", i)
+    event_count += 1
+    print("event number: ", j)
 
     # get the pruned gen particles
     event.getByLabel(labelPruned, handlePruned)
@@ -119,7 +122,7 @@ for i,event in enumerate(events):
         print(f"Error accessing displaced global muons: {e2}")
 
 # Print summary
-print(f"Processed {i+1} events, found {muon_count} displaced global muons")
+print(f"Processed {event_count}/{total_events} events, found {total_muons} displaced global muons")
 print(f"Average muons per event: {muon_count/(i+1):.2f}")
 
 # Save histograms to ROOT file

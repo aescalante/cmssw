@@ -3,24 +3,31 @@ import os
 
 # Set up argument parser
 parser = argparse.ArgumentParser(description='Configure muonSeededMeasurementEstimatorForOutInDisplaced parameters')
+parser.add_argument('--input', '-i', type=str, help='Input configuration file to modify the ReReco', required=True)
 parser.add_argument('--MaxChi2', type=float, default=30., help='Max chi-squared value (default: 30)')
 parser.add_argument('--MaxDisplacement', type=float, default=0.5, help='Max displacement value (default: 0.5)')
 parser.add_argument('--MaxSagitta', type=float, default=2.0, help='Max sagitta value (default: 2)')
 parser.add_argument('--nSigma', type=float, default=3, help='nSigma value (default: 5)')
 parser.add_argument('--run', action='store_true', help='Run cmsRun with the generated config file immediately')
+parser.add_argument('--MaxEvents', '-n', type=int, default=-1, help='number of events to be processed (default: all events)')
+parser.add_argument('--output', '-o', type=str, default='/pnfs/ciemat.es/data/cms/store/user/escalant/displacedGlobalMuon_ReReco', help='Output folder')
 
 # Parse arguments
 args = parser.parse_args()
 
 # Generate a parameter suffix string to use in filenames
-param_suffix = f"chi2_{args.MaxChi2}_disp_{args.MaxDisplacement}_sag_{args.MaxSagitta}_sig_{args.nSigma}"
+sampleID = args.input.replace('_TuneCP5_13p6TeV_pythia8_AODSIM_cff.py', '')
+param_suffix = f"{sampleID}_chi2_{args.MaxChi2}_disp_{args.MaxDisplacement}_sag_{args.MaxSagitta}_sig_{args.nSigma}"
 
 # output filenames
 output_cfg = f"ReReco_{param_suffix}_cfg.py"
-output_root = f"ReReco_{param_suffix}.root"
+output_root = f"{args.output}/ReReco_{param_suffix}.root"
 
 # load default configuration file
-from SMuonToMuGravitino_M_100_ctau_2000mm_TuneCP5_13p6TeV_pythia8_AODSIM_cff import *
+if args.input == "SMuonToMuGravitino_M_100_ctau_2000mm_TuneCP5_13p6TeV_pythia8_AODSIM_cff.py":
+    from SMuonToMuGravitino_M_100_ctau_2000mm_TuneCP5_13p6TeV_pythia8_AODSIM_cff import *
+if args.input == "SMuonToMuGravitino_M_900_ctau_500mm_TuneCP5_13p6TeV_pythia8_AODSIM_cff.py":
+    from SMuonToMuGravitino_M_900_ctau_500mm_TuneCP5_13p6TeV_pythia8_AODSIM_cff import *
 
 # modify the output file name
 for module_name in process.outputModules_().keys():
@@ -38,39 +45,55 @@ for module_name in process.outputModules_().keys():
     else:
         print(f"Warning: Output module '{module_name}' does not have a 'fileName' attribute")
 
+# configure the number of events to process
+if args.MaxEvents > 0:
+    process.maxEvents = cms.untracked.PSet(
+        input = cms.untracked.int32(args.MaxEvents)
+    )
+    print(f"Configured to process {args.MaxEvents} events")
+
+processes_to_check = []
+# defining the search window for patter recognition
+processes_to_check.append('muonSeededMeasurementEstimatorForOutInDisplaced')
+# selections on the trajectories while building them
+processes_to_check.append('muonSeededTrajectoryFilterForOutInDisplaced')
+# Trajectory builder (using as input the previous steps)
+processes_to_check.append('muonSeededTrajectoryBuilderForOutInDisplaced')
+# Track candidate maker 
+processes_to_check.append('muonSeededTrackCandidatesOutInDisplaced')
+
 # test if the processes has the attributes that I wish to modify
-print("Check if muonSeededMeasurementEstimatorForOutInDisplaced is in the process:")
-if hasattr(process, 'muonSeededMeasurementEstimatorForOutInDisplaced'):
-    print("✓ Found as a process attribute")
-    print(process.muonSeededMeasurementEstimatorForOutInDisplaced)
-
-else:
-    print("✗ Not found as a process attribute")
-    print(" Available attributes:")
-    print(dir(process))
+for process_name in processes_to_check:
+    if hasattr(process, process_name):
+        print(f"✓ Found {process_name} as a process attribute")
+        print(getattr(process, process_name))
+    else:
+        print(f"✗ Not found {process_name} as a process attribute")
+        print(" Available attributes:")
+        print(dir(process))
     
-    # Check if it's included in any path or sequence
-    print("\n Debugging Path definitions:")
-    found_in_path = False
-    for path_name, path in process.paths_().items():
-        print(path_name)
-        if 'muonSeededMeasurementEstimatorForOutInDisplaced' in str(path):
-            print(f"✓ Found in path: {path_name}")
-            found_in_path = True
+        # Check if it's included in any path or sequence
+        print("\n Debugging Path definitions:")
+        found_in_path = False
+        for path_name, path in process.paths_().items():
+            print(path_name)
+            if process_name in str(path):
+                print(f"✓ Found in path: {path_name}")
+                found_in_path = True
 
-    if not found_in_path:
-        print("✗ Not found in any path")
-        
-        # start debugging
-        import pdb
-        pdb.set_trace()
+        if not found_in_path:
+            print("✗ Not found in any path")
+            
+            # start debugging
+            import pdb
+            pdb.set_trace()
 
-# Changing one configuration for testing
-print("Default: ")
-print("  MaxChi2", process.muonSeededMeasurementEstimatorForOutInDisplaced.MaxChi2)
-print("  MaxDisplacement: ", process.muonSeededMeasurementEstimatorForOutInDisplaced.MaxDisplacement)
-print("  MaxSaggita: ", process.muonSeededMeasurementEstimatorForOutInDisplaced.MaxSagitta)
-print("  nSigma:", process.muonSeededMeasurementEstimatorForOutInDisplaced.nSigma)
+# Changing the muonSeededMeasurementEstimatorForOutInDisplaced configuration for testing
+#print("Default: ")
+#print("  MaxChi2", process.muonSeededMeasurementEstimatorForOutInDisplaced.MaxChi2)
+#print("  MaxDisplacement: ", process.muonSeededMeasurementEstimatorForOutInDisplaced.MaxDisplacement)
+#print("  MaxSaggita: ", process.muonSeededMeasurementEstimatorForOutInDisplaced.MaxSagitta)
+#print("  nSigma:", process.muonSeededMeasurementEstimatorForOutInDisplaced.nSigma)
 
 # Print the updated parameters
 print("Updated parameters:")
@@ -96,8 +119,7 @@ with open(output_cfg, 'w') as f:
     f.write(process.dumpPython())
 
 # Instructions to run the code
-print(f"You can now run: cmsRun {output_cfg} to produce the output file {output_root} (or use the --run option)")
-
+print(f"You can run it (with --run option) to produce the output file {output_root}")
 
 # Print the input files being used
 print("\n The code will ReReco the following files (you might need a certificate to access them):")
