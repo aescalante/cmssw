@@ -8,9 +8,11 @@ parser.add_argument('--MaxChi2', type=float, default=30., help='Max chi-squared 
 parser.add_argument('--MaxDisplacement', type=float, default=0.5, help='Max displacement value (default: 0.5)')
 parser.add_argument('--MaxSagitta', type=float, default=2.0, help='Max sagitta value (default: 2)')
 parser.add_argument('--nSigma', type=float, default=3, help='nSigma value (default: 5)')
+parser.add_argument('--fromVertex', action='store_true', help='Impose a vertex constraint to the seeding')
 parser.add_argument('--run', action='store_true', help='Run cmsRun with the generated config file immediately')
 parser.add_argument('--MaxEvents', '-n', type=int, default=-1, help='number of events to be processed (default: all events)')
 parser.add_argument('--output', '-o', type=str, default='/pnfs/ciemat.es/data/cms/store/user/escalant/displacedGlobalMuon_ReReco', help='Output folder')
+parser.add_argument('--postfix', '-p', type=str, default='', help='Add a postfix to the output file name (default: empty)')
 
 # Parse arguments
 args = parser.parse_args()
@@ -18,7 +20,9 @@ args = parser.parse_args()
 # Generate a parameter suffix string to use in filenames
 sampleID = args.input.replace('_TuneCP5_13p6TeV_pythia8_AODSIM_cff.py', '')
 param_suffix = f"{sampleID}_chi2_{args.MaxChi2}_disp_{args.MaxDisplacement}_sag_{args.MaxSagitta}_sig_{args.nSigma}"
-
+if args.postfix:
+    param_suffix += f"_{args.postfix}"
+    
 # output filenames
 output_cfg = f"ReReco_{param_suffix}_cfg.py"
 output_root = f"{args.output}/ReReco_{param_suffix}.root"
@@ -53,6 +57,8 @@ if args.MaxEvents > 0:
     print(f"Configured to process {args.MaxEvents} events")
 
 processes_to_check = []
+# muon seeds for outside in algorithm (used for displaced muons)
+processes_to_check.append('muonSeededSeedsOutInDisplaced')
 # defining the search window for patter recognition
 processes_to_check.append('muonSeededMeasurementEstimatorForOutInDisplaced')
 # selections on the trajectories while building them
@@ -94,6 +100,18 @@ for process_name in processes_to_check:
 #print("  MaxDisplacement: ", process.muonSeededMeasurementEstimatorForOutInDisplaced.MaxDisplacement)
 #print("  MaxSaggita: ", process.muonSeededMeasurementEstimatorForOutInDisplaced.MaxSagitta)
 #print("  nSigma:", process.muonSeededMeasurementEstimatorForOutInDisplaced.nSigma)
+
+# apply the beamspot constraint in the muon seeding
+if args.fromVertex == True:
+    process.muonSeededSeedsOutInDisplaced.fromVertex = True 
+
+print("Beamspot constraint in muon seeding?")
+if process.muonSeededSeedsOutInDisplaced.fromVertex == False:
+    print("  fromVertex = False")
+    print("  beamspot constraint is not applied")
+else:
+    print("  fromVertex = True")
+    print("  beamspot constraint is applied")
 
 # Print the updated parameters
 print("Updated parameters:")

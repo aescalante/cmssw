@@ -63,9 +63,10 @@ def make_comparison_plot(hists, title, x_title, y_title, output_path, legends, n
               ROOT.kCyan+1, ROOT.kMagenta+1, ROOT.kYellow+2, ROOT.kGray+2, ROOT.kAzure+1]
     
     # Create legend
-    legend = ROOT.TLegend(0.65, 0.75, 0.89, 0.89)
+    legend = ROOT.TLegend(0.6, 0.73, 0.89, 0.89)
     legend.SetBorderSize(0)
     legend.SetFillStyle(0)
+    legend.SetTextSize(0.03) 
     
     # Find maximum y-value among all histograms
     y_max = 0
@@ -80,6 +81,7 @@ def make_comparison_plot(hists, title, x_title, y_title, output_path, legends, n
     for i, (hist, legend_text) in enumerate(zip(hists, legends)):
         hist.SetLineColor(colors[i % len(colors)])
         hist.SetLineWidth(2)
+        hist.SetFillColor(0)
         hist.SetTitle("")
         
         hist.GetXaxis().SetTitle(x_title)
@@ -95,7 +97,11 @@ def make_comparison_plot(hists, title, x_title, y_title, output_path, legends, n
         draw_option = "HIST" if i == 0 else "HIST SAME"
         hist.Draw(draw_option)
         
-        legend.AddEntry(hist, legend_text, "l")
+        #legend.AddEntry(hist, legend_text, "l")
+        # Add entry count to legend text
+        entries = int(hist.GetEntries())
+        legend_with_entries = f"{legend_text} [{entries}]"
+        legend.AddEntry(hist, legend_with_entries, "l")
     
     # Draw legend
     legend.Draw()
@@ -129,7 +135,9 @@ def main():
     hist_configs = [
         ("h_multiplicity", "Displaced Global Muon Multiplicity", "Number of Displaced Global Muons", "Events", False, False),
         ("h_pt", "Displaced Global Muon p_{T}", "p_{T} [GeV]", "Number of Displaced Global Muons", False, False),
-        ("h_eta", "Displaced Global Muon #eta", "#eta", "Number of Displaced Global Muons", False, False)
+        ("h_eta", "Displaced Global Muon #eta", "#eta", "Number of Displaced Global Muons", False, False),
+        ("h_d0", "Displaced Global Muon d0", "d0 [cm]", "Number of Displaced Global Muons", False, True),
+        ("h_algo", "Displaced Track algo", "algo", "Number of Displaced Global Muons", False, False)
     ]
     
     # Process each histogram type
