@@ -61,4 +61,7 @@ python3 makeHistograms_ReReco.py -i ReReco_SMuonToMuGravitino_M_100_ctau_2000mm_
 
 # run over a .sh script with all configurations (might be worth using the batch system)
 source submit_ReReco.sh
+
+# one can also run it with nohup, which is useful for long jobs (without using condor)
+nohup bash submit_ReReco.sh > output.log 2>&1 &
 ```

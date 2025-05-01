@@ -63,7 +63,7 @@ def make_comparison_plot(hists, title, x_title, y_title, output_path, legends, n
               ROOT.kCyan+1, ROOT.kMagenta+1, ROOT.kYellow+2, ROOT.kGray+2, ROOT.kAzure+1]
     
     # Create legend
-    legend = ROOT.TLegend(0.6, 0.73, 0.89, 0.89)
+    legend = ROOT.TLegend(0.55, 0.73, 0.89, 0.89)
     legend.SetBorderSize(0)
     legend.SetFillStyle(0)
     legend.SetTextSize(0.03) 
@@ -133,11 +133,13 @@ def main():
     
     # Histogram configurations: (name, title, x_title, y_title, normalize, log_y)
     hist_configs = [
+        ("h_multiplicity_preselection", "Displaced Global Muon Multiplicity", "Number of Displaced Global Muons (before matching)", "Events", False, False),
         ("h_multiplicity", "Displaced Global Muon Multiplicity", "Number of Displaced Global Muons", "Events", False, False),
         ("h_pt", "Displaced Global Muon p_{T}", "p_{T} [GeV]", "Number of Displaced Global Muons", False, False),
         ("h_eta", "Displaced Global Muon #eta", "#eta", "Number of Displaced Global Muons", False, False),
         ("h_d0", "Displaced Global Muon d0", "d0 [cm]", "Number of Displaced Global Muons", False, True),
         ("h_algo", "Displaced Track algo", "algo", "Number of Displaced Global Muons", False, False)
+        ("h_originalAlgo", "Displaced Track original Algo", "original Algo", "Number of Displaced Global Muons", False, False)
     ]
     
     # Process each histogram type
