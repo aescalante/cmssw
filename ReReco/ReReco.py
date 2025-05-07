@@ -2,13 +2,13 @@ import argparse
 import os
 
 # Set up argument parser
-parser = argparse.ArgumentParser(description='Configure muonSeededMeasurementEstimatorForOutInDisplaced parameters')
+parser = argparse.ArgumentParser(description='Configure a ReReco in the context of displaced muons')
 parser.add_argument('--input', '-i', type=str, help='Input configuration file to modify the ReReco', required=True)
 parser.add_argument('--MaxChi2', type=float, default=30., help='Max chi-squared value (default: 30)')
 parser.add_argument('--MaxDisplacement', type=float, default=0.5, help='Max displacement value (default: 0.5)')
 parser.add_argument('--MaxSagitta', type=float, default=2.0, help='Max sagitta value (default: 2)')
 parser.add_argument('--nSigma', type=float, default=3, help='nSigma value (default: 5)')
-parser.add_argument('--fromVertex', action='store_true', help='Impose a vertex constraint to the seeding')
+parser.add_argument('--fromVertex', action='store_true', help='Impose a fromVertex requirement in muon seeding (default: True)')
 parser.add_argument('--run', action='store_true', help='Run cmsRun with the generated config file immediately')
 parser.add_argument('--MaxEvents', '-n', type=int, default=-1, help='number of events to be processed (default: all events)')
 parser.add_argument('--output', '-o', type=str, default='/pnfs/ciemat.es/data/cms/store/user/escalant/displacedGlobalMuon_ReReco', help='Output folder')
@@ -94,24 +94,14 @@ for process_name in processes_to_check:
             import pdb
             pdb.set_trace()
 
-# Changing the muonSeededMeasurementEstimatorForOutInDisplaced configuration for testing
-#print("Default: ")
-#print("  MaxChi2", process.muonSeededMeasurementEstimatorForOutInDisplaced.MaxChi2)
-#print("  MaxDisplacement: ", process.muonSeededMeasurementEstimatorForOutInDisplaced.MaxDisplacement)
-#print("  MaxSaggita: ", process.muonSeededMeasurementEstimatorForOutInDisplaced.MaxSagitta)
-#print("  nSigma:", process.muonSeededMeasurementEstimatorForOutInDisplaced.nSigma)
-
-# apply the beamspot constraint in the muon seeding
+# apply fromVertex in the muon seeding?
 if args.fromVertex == True:
     process.muonSeededSeedsOutInDisplaced.fromVertex = True 
-
-print("Beamspot constraint in muon seeding?")
-if process.muonSeededSeedsOutInDisplaced.fromVertex == False:
-    print("  fromVertex = False")
-    print("  beamspot constraint is not applied")
 else:
-    print("  fromVertex = True")
-    print("  beamspot constraint is applied")
+    process.muonSeededSeedsOutInDisplaced.fromVertex = False
+
+print("use fromVertex in  constraint in muon seeding?")
+print(process.muonSeededSeedsOutInDisplaced.fromVertex)
 
 # Print the updated parameters
 print("Updated parameters:")
@@ -130,6 +120,13 @@ if process.muonSeededMeasurementEstimatorForOutInDisplaced.MaxSagitta != args.Ma
 if process.muonSeededMeasurementEstimatorForOutInDisplaced.nSigma != args.nSigma:
     process.muonSeededMeasurementEstimatorForOutInDisplaced.nSigma = args.nSigma
     print("  changed nSigma :", process.muonSeededMeasurementEstimatorForOutInDisplaced.nSigma)
+
+# add all the Displaced collections to the AOD output file, such that I can study them later (if neede)
+collections_to_add = ["keep *_*Displaced*_*_*",]
+for collection in collections_to_add:
+    process.AODEventContent.outputCommands.append(collection)
+    process.AODSIMEventContent.outputCommands.append(collection)
+    process.AODSIMoutput.outputCommands.append(collection)
 
 # Dump the full configuration to a file that can be used with cmsRun
 print(f"\nDumping configuration to: {output_cfg}")

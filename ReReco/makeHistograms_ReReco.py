@@ -33,6 +33,14 @@ labelDisplacedMuons = ("displacedGlobalMuons", "", "RECO")
 handleDisplacedTracks = Handle("std::vector<reco::Track>")
 labelDisplacedTracks = ("displacedTracks", "", "RECO")
 
+# Seeds
+handleSeeds = Handle("vector<TrajectorySeed>")
+labelSeeeds = ("muonSeededSeedsOutInDisplaced", "", "RECO")
+
+# OutInTracks
+handleOutInTracks = Handle("vector<reco::Track>")
+labelOutInTracks = ("muonSeededTracksOutInDisplaced", "", "RECO")
+
 # Check if input file exists
 inputFile = os.path.join(args.samples, args.input)
 if not os.path.exists(inputFile):
@@ -150,6 +158,14 @@ for j,event in enumerate(events):
     displacedMuons = handleDisplacedMuons.product()
     displacedTracks = handleDisplacedTracks.product()
 
+    # get the seeds
+    event.getByLabel(labelSeeeds, handleSeeds)
+    seeds = handleSeeds.product()
+    
+    # get the OutInTracks
+    event.getByLabel(labelOutInTracks, handleOutInTracks)
+    outInTracks = handleOutInTracks.product()
+    
     # try to get the displaced global muons (and count them)
     muon_count = 0
 
@@ -206,8 +222,37 @@ for j,event in enumerate(events):
         muon_count += 1
         total_muons += 1
 
+        # debug seeds    
+        for i, seed in enumerate(seeds):
+            print(f"debug seed:{i}/{len(seeds)}")
+            recHitIt = seed.recHits().begin()
+            recHitEnd = seed.recHits().end()
+            hitCounter = 0
+            if recHitIt != recHitEnd:
+                if recHitIt.isValid() == True:
+                    print("  recHitIt.isValid(): ", recHitIt.isValid())
+                    print("  recHitIt.getType(): ", recHitIt.getType())
+                    print("  recHitIt.localPosition(): ", recHitIt.geographicalId().det())
+                    print("  recHitIt.localPosition().x(): ", recHitIt.localPosition().x())
+                    print("  recHitIt.localPosition().y(): ", recHitIt.localPosition().y())
+                    print("  recHitIt.localPosition().z(): ", recHitIt.localPosition().z())
+                recHitIt += 1
+                hitCounter += 1
+            print("nHits: ", hitCounter)
+        
+        print("debug outInTracks")
+        for i, outInTrack in enumerate(outInTracks):
+            print("  outInTrack: ", i)
+            print("    pT: ", outInTrack.pt())
+            print("    eta: ", outInTrack.eta())
+            print("    phi: ", outInTrack.phi())
+
     # actual muon multiplicity/event used in the analysis
     h_multiplicity.Fill(muon_count)
+
+    # end of the event
+    import pdb
+    pdb.set_trace()
 
 # Print summary
 print(f"Processed {event_count}/{total_events} events, found {total_muons} displaced global muons")
