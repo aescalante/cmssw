@@ -8,12 +8,12 @@ SAMPLE=SMuonToMuGravitino_M_100_ctau_2000mm_TuneCP5_13p6TeV_pythia8_AODSIM_cff.p
 INPUTDIR=/pnfs/ciemat.es/data/cms/store/user/escalant/displacedGlobalMuon_ReReco/
 SAMPLE_RERECO=$INPUTDIR"ReReco_${SAMPLE/_TuneCP5_13p6TeV_pythia8_AODSIM_cff.py/}"
 
-DO_RERECO=true
+DO_RERECO=false
 if [ "$DO_RERECO" = true ]; then
-    python3 ReReco.py -i $SAMPLE --MaxChi2 0.01 -n $NEVENTS --run 
-    python3 ReReco.py -i $SAMPLE --MaxChi2 15 -n $NEVENTS --run 
-    python3 ReReco.py -i $SAMPLE --MaxChi2 30 -n $NEVENTS --run # default
-    python3 ReReco.py -i $SAMPLE --MaxChi2 120 -n $NEVENTS --run 
+    #python3 ReReco.py -i $SAMPLE --MaxChi2 0.01 -n $NEVENTS --run 
+    #python3 ReReco.py -i $SAMPLE --MaxChi2 15 -n $NEVENTS --run 
+    #python3 ReReco.py -i $SAMPLE --MaxChi2 30 -n $NEVENTS --run # default
+    #python3 ReReco.py -i $SAMPLE --MaxChi2 120 -n $NEVENTS --run 
     
     #python3 ReReco.py -i $INPUTDIR$SAMPLE --MaxDisplacement 0.01 -n $NEVENTS  --run 
     #python3 ReReco.py -i $INPUTDIR$SAMPLE --MaxDisplacement 0.25 -n $NEVENTS  --run 
@@ -30,16 +30,26 @@ if [ "$DO_RERECO" = true ]; then
     #python3 ReReco.py -i $INPUTDIR$SAMPLE --nSigma 3.0 -n $NEVENTS --run # default
     #python3 ReReco.py -i $INPUTDIR$SAMPLE --nSigma 10 -n $NEVENTS --run
 
+    python3 ReReco.py -i $SAMPLE -n $NEVENTS --run #default
+
     python3 ReReco.py -i $SAMPLE --fromVertex --postfix vtx -n $NEVENTS --run
+
+    python3 ReReco.py -i $SAMPLE --selection "outerTrack.hitPattern.muonStationsWithValidHits >= 2" --postfix quality -n $NEVENTS --run
+
+    python3 ReReco.py -i $SAMPLE --selection "pt > 0" --postfix noselection -n $NEVENTS --run
+
+    python3 ReReco.py -i $SAMPLE --fromVertex --selection "pt > 0" --postfix vtx_noselection -n $NEVENTS --run
+
+    python3 ReReco.py -i $SAMPLE --MaxChi2 120 --fromVertex --selection "pt > 0" --postfix vtx_noselection -n $NEVENTS --run 
 
 fi
 
-DO_HISTO=false
+DO_HISTO=true
 if [ "$DO_HISTO" = true ]; then
-    python3 makeHistograms_ReReco.py -i ${SAMPLE_RERECO}_chi2_0.01_disp_0.5_sag_2.0_sig_3.root
-    python3 makeHistograms_ReReco.py -i ${SAMPLE_RERECO}_chi2_15.0_disp_0.5_sag_2.0_sig_3.root
-    python3 makeHistograms_ReReco.py -i ${SAMPLE_RERECO}_chi2_30.0_disp_0.5_sag_2.0_sig_3.root
-    python3 makeHistograms_ReReco.py -i ${SAMPLE_RERECO}_chi2_120.0_disp_0.5_sag_2.0_sig_3.root
+    #python3 makeHistograms_ReReco.py -i ${SAMPLE_RERECO}_chi2_0.01_disp_0.5_sag_2.0_sig_3.root
+    #python3 makeHistograms_ReReco.py -i ${SAMPLE_RERECO}_chi2_15.0_disp_0.5_sag_2.0_sig_3.root
+    #python3 makeHistograms_ReReco.py -i ${SAMPLE_RERECO}_chi2_30.0_disp_0.5_sag_2.0_sig_3.root
+    #python3 makeHistograms_ReReco.py -i ${SAMPLE_RERECO}_chi2_120.0_disp_0.5_sag_2.0_sig_3.root
 
     #python3 makeHistograms_ReReco.py -i ${SAMPLE_RERECO}_chi2_30.0_disp_0.01_sag_2.0_sig_3.root
     #python3 makeHistograms_ReReco.py -i ${SAMPLE_RERECO}_chi2_30.0_disp_0.25_sag_2.0_sig_3.root
@@ -55,5 +65,12 @@ if [ "$DO_HISTO" = true ]; then
     #python3 makeHistograms_ReReco.py -i ${SAMPLE_RERECO}_chi2_30.0_disp_0.5_sag_2.0_sig_2.0.root
     #python3 makeHistograms_ReReco.py -i ${SAMPLE_RERECO}_chi2_30.0_disp_0.5_sag_2.0_sig_3.root
     #python3 makeHistograms_ReReco.py -i ${SAMPLE_RERECO}_chi2_30.0_disp_0.5_sag_2.0_sig_10.0.root
+    #python3 makeHistograms_ReReco.py -i ${SAMPLE_RERECO}_chi2_30.0_disp_0.5_sag_2.0_sig_3_vtx.root
+
+    python3 makeHistograms_ReReco.py -i ${SAMPLE_RERECO}_chi2_30.0_disp_0.5_sag_2.0_sig_3.root
     python3 makeHistograms_ReReco.py -i ${SAMPLE_RERECO}_chi2_30.0_disp_0.5_sag_2.0_sig_3_vtx.root
+    python3 makeHistograms_ReReco.py -i ${SAMPLE_RERECO}_chi2_30.0_disp_0.5_sag_2.0_sig_3_noselection.root
+    python3 makeHistograms_ReReco.py -i ${SAMPLE_RERECO}_chi2_30.0_disp_0.5_sag_2.0_sig_3_vtx_noselection.root
+    python3 makeHistograms_ReReco.py -i ${SAMPLE_RERECO}_chi2_30.0_disp_0.5_sag_2.0_sig_3_quality.root
+    python3 makeHistograms_ReReco.py -i ${SAMPLE_RERECO}_chi2_120.0_disp_0.5_sag_2.0_sig_3_vtx_noselection.root
 fi

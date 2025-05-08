@@ -1,9 +1,9 @@
-python3 makePlots_ReReco.py -f plots/ReReco_SMuonToMuGravitino_M_100_ctau_2000mm_chi2_120.0_disp_0.5_sag_2.0_sig_3_histograms.root \
-plots/ReReco_SMuonToMuGravitino_M_100_ctau_2000mm_chi2_30.0_disp_0.5_sag_2.0_sig_3_histograms.root \
-plots/ReReco_SMuonToMuGravitino_M_100_ctau_2000mm_chi2_15.0_disp_0.5_sag_2.0_sig_3_histograms.root \
-plots/ReReco_SMuonToMuGravitino_M_100_ctau_2000mm_chi2_0.01_disp_0.5_sag_2.0_sig_3_histograms.root \
--l "Chi2 = 120" "Chi2 = 30 (default)" "Chi2 = 15" "Chi2 = 0.01" \
--p "Chi2"
+#python3 makePlots_ReReco.py -f plots/ReReco_SMuonToMuGravitino_M_100_ctau_2000mm_chi2_120.0_disp_0.5_sag_2.0_sig_3_histograms.root \
+#plots/ReReco_SMuonToMuGravitino_M_100_ctau_2000mm_chi2_30.0_disp_0.5_sag_2.0_sig_3_histograms.root \
+#plots/ReReco_SMuonToMuGravitino_M_100_ctau_2000mm_chi2_15.0_disp_0.5_sag_2.0_sig_3_histograms.root \
+#plots/ReReco_SMuonToMuGravitino_M_100_ctau_2000mm_chi2_0.01_disp_0.5_sag_2.0_sig_3_histograms.root \
+#-l "Chi2 = 120" "Chi2 = 30 (default)" "Chi2 = 15" "Chi2 = 0.01" \
+#-p "Chi2"
 
 #python3 makePlots_ReReco.py -f plots/ReReco_SMuonToMuGravitino_M_100_ctau_2000mm_chi2_30.0_disp_100.0_sag_2.0_sig_3_histograms.root \
 #plots/ReReco_SMuonToMuGravitino_M_100_ctau_2000mm_chi2_30.0_disp_0.5_sag_2.0_sig_3_histograms.root \
@@ -23,7 +23,14 @@ plots/ReReco_SMuonToMuGravitino_M_100_ctau_2000mm_chi2_0.01_disp_0.5_sag_2.0_sig
 #-l "nSig = 10" "nSig = 3 (default)" "nSig = 2" \
 #-p "nSig" 
 
-python3 makePlots_ReReco.py -f plots/ReReco_SMuonToMuGravitino_M_100_ctau_2000mm_chi2_30.0_disp_0.5_sag_2.0_sig_3_vtx_histograms.root \
-plots/ReReco_SMuonToMuGravitino_M_100_ctau_2000mm_chi2_30.0_disp_0.5_sag_2.0_sig_3_histograms.root \
--l "vtx = True" "vtx = False (default)" \
--p "vtx" 
+#python3 makePlots_ReReco.py -f plots/ReReco_SMuonToMuGravitino_M_100_ctau_2000mm_chi2_30.0_disp_0.5_sag_2.0_sig_3_vtx_histograms.root \
+#plots/ReReco_SMuonToMuGravitino_M_100_ctau_2000mm_chi2_30.0_disp_0.5_sag_2.0_sig_3_histograms.root \
+#-l "vtx = True" "vtx = False (default)" \
+#-p "vtx" 
+
+python3 makePlots_ReReco.py -f plots/ReReco_SMuonToMuGravitino_M_100_ctau_2000mm_chi2_30.0_disp_0.5_sag_2.0_sig_3_histograms.root \
+plots/ReReco_SMuonToMuGravitino_M_100_ctau_2000mm_chi2_30.0_disp_0.5_sag_2.0_sig_3_quality_histograms.root \
+plots/ReReco_SMuonToMuGravitino_M_100_ctau_2000mm_chi2_30.0_disp_0.5_sag_2.0_sig_3_noselection_histograms.root \
+plots/ReReco_SMuonToMuGravitino_M_100_ctau_2000mm_chi2_30.0_disp_0.5_sag_2.0_sig_3_vtx_noselection_histograms.root \
+-l "cut = default" "cut = quality" "cut = nocut" "cut = nocut + vtx" \
+-p "selection" 

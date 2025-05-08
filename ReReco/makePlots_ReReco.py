@@ -138,8 +138,14 @@ def main():
         ("h_pt", "Displaced Global Muon p_{T}", "p_{T} [GeV]", "Number of Displaced Global Muons", False, False),
         ("h_eta", "Displaced Global Muon #eta", "#eta", "Number of Displaced Global Muons", False, False),
         ("h_d0", "Displaced Global Muon d0", "d0 [cm]", "Number of Displaced Global Muons", False, True),
-        ("h_algo", "Displaced Track algo", "algo", "Number of Displaced Global Muons", False, False)
-        ("h_originalAlgo", "Displaced Track original Algo", "original Algo", "Number of Displaced Global Muons", False, False)
+        ("h_algo", "Displaced Track algo", "algo", "Number of Displaced Global Muons", False, False),
+        ("h_originalAlgo", "Displaced Track original Algo", "original Algo", "Number of Displaced Global Muons", False, False),
+        ("h_genpt", "Gen  p_{T}", "p_{T} [GeV]", "Number of Gen muons", False, False),
+        ("h_genpt_filter", "Gen  p_{T}", "p_{T} [GeV]", "Number of Gen muons", False, False),
+        ("h_pt_dsa", "Displaced StandAlone p_{T}", "p_{T} [GeV]", "Number of Displaced StandAlone Muons", False, False),
+        ("h_pt_earlyOuter", "Early Outer p_{T}", "p_{T} [GeV]", "Number of Early Outer Muons", False, False),
+        ("h_pt_early", "Early p_{T}", "p_{T} [GeV]", "Number of Early Muons", False, False),
+        ("h_nSeeds", "Number of Seeds", "Number of Seeds", "Entries", False, False)
     ]
     
     # Process each histogram type

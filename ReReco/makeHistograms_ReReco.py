@@ -29,13 +29,21 @@ labelPruned = ("genParticles")
 handleDisplacedMuons = Handle("std::vector<reco::Track>")
 labelDisplacedMuons = ("displacedGlobalMuons", "", "RECO")
 
-# Displaced tracks collection
-handleDisplacedTracks = Handle("std::vector<reco::Track>")
-labelDisplacedTracks = ("displacedTracks", "", "RECO")
+# Early displaced muons collection 
+handleEarlyDisplacedMuons = Handle("vector<reco::Muon>")
+labelEarlyDisplacedMuons = ("earlyDisplacedMuons", "", "RECO")
+
+# Displaced stand alone muons collection 
+handleDisplacedStandAloneMuons = Handle("vector<reco::Track>")
+labelDisplacedStandAloneMuons = ("displacedStandAloneMuons", "", "RECO")
 
 # Seeds
 handleSeeds = Handle("vector<TrajectorySeed>")
 labelSeeeds = ("muonSeededSeedsOutInDisplaced", "", "RECO")
+
+# Displaced tracks collection
+handleDisplacedTracks = Handle("std::vector<reco::Track>")
+labelDisplacedTracks = ("displacedTracks", "", "RECO")
 
 # OutInTracks
 handleOutInTracks = Handle("vector<reco::Track>")
@@ -91,13 +99,19 @@ def create_histogram(name, title, nbins, xmin, xmax, x_title, y_title):
 # Create histograms for basic checks
 h_multiplicity_preselection = create_histogram("h_multiplicity_preselection", "Displaced Global Muon Multiplicity", 8, 0, 8, "Number of Displaced Global Muons (before matching)", "Events")
 h_multiplicity = create_histogram("h_multiplicity", "Displaced Global Muon Multiplicity", 8, 0, 8, "Number of Displaced Global Muons", "Events")
-h_pt = create_histogram("h_pt", "Displaced Global Muon p_{T}", 50, 0, 200, "p_{T} [GeV]", "Entries")
+h_pt = create_histogram("h_pt", "Displaced Global Muon p_{T}", 40, 0, 200, "p_{T} [GeV]", "Entries")
 h_eta = create_histogram("h_eta", "Displaced Global Muon #eta", 15, -2.5, 2.5, "#eta", "Entries")
 h_d0 = create_histogram("h_d0", "Displaced Global Muon d0", 65, 0, 65, "d0 [cm]", "Entries")  
 h_algo = create_histogram("h_algo", "Displaced Track algo", 20, 0, 20, "algo", "Entries")
 h_originalAlgo = create_histogram("h_originalAlgo", "Displaced Track algo", 20, 0, 20, "originalAlgo", "Entries")
 h_genlxy = create_histogram("h_genlxy", "Generated Lxy", 250, 0, 500, "L_{xy} [cm]", "Entries")
+h_genpt = create_histogram("h_genpt", "Generated muon pT ", 40, 0, 200, "p_{T} [GeV]", "Entries")
 h_genlxy_filter = create_histogram("h_genlxy_filter", "Generated Lxy", 100, 0, 100, "L_{xy} [cm]", "Entries")
+h_genpt_filter = create_histogram("h_genpt_filter", "Generated muon pT ", 40, 0, 200, "p_{T} [GeV]", "Entries")
+h_pt_dsa = create_histogram("h_pt_dsa", "Displaced StandAlone ", 40, 0, 200, "p_{T} [GeV]", "Entries")
+h_pt_earlyOuter = create_histogram("h_pt_earlyOuter", "Early Outer ", 40, 0, 200, "p_{T} [GeV]", "Entries")
+h_pt_early = create_histogram("h_pt_early", "Early ", 40, 0, 200, "p_{T} [GeV]", "Entries")
+h_nSeeds = create_histogram("h_nSeeds", "Number of Seeds", 30, 0, 30, "Number of Seeds", "Entries")
 
 # loop over the events and fill the histograms
 for j,event in enumerate(events):
@@ -143,6 +157,7 @@ for j,event in enumerate(events):
                 gen_lxy = math.hypot(genParticle.vx(), genParticle.vy())
                 print("  Lxy: ", gen_lxy)
                 h_genlxy.Fill(gen_lxy)
+                h_genpt.Fill(genParticle.pt())
 
     if len(genMuonsList) != 2:
         print("Skipping event, not 2 muons; Why?")
@@ -151,26 +166,27 @@ for j,event in enumerate(events):
     
     print("=="*80)
 
-    # get the reconstructed muons    
+    # get the reconstructed muons (dgb, early, dsa), seeds and tracks (outin, displacedTracks)
     event.getByLabel(labelDisplacedMuons, handleDisplacedMuons)
+    event.getByLabel(labelEarlyDisplacedMuons, handleEarlyDisplacedMuons)
+    event.getByLabel(labelDisplacedStandAloneMuons, handleDisplacedStandAloneMuons)
+    event.getByLabel(labelSeeeds, handleSeeds)
+    event.getByLabel(labelOutInTracks, handleOutInTracks)
     event.getByLabel(labelDisplacedTracks, handleDisplacedTracks)
 
     displacedMuons = handleDisplacedMuons.product()
     displacedTracks = handleDisplacedTracks.product()
-
-    # get the seeds
-    event.getByLabel(labelSeeeds, handleSeeds)
+    earlyDisplacedMuons = handleEarlyDisplacedMuons.product()
+    displacedStandAloneMuons = handleDisplacedStandAloneMuons.product()
     seeds = handleSeeds.product()
-    
-    # get the OutInTracks
-    event.getByLabel(labelOutInTracks, handleOutInTracks)
     outInTracks = handleOutInTracks.product()
+    displacedTracks = handleDisplacedTracks.product()
     
     # try to get the displaced global muons (and count them)
     muon_count = 0
 
     # dGB multiplicity
-    print(f"\nDisplaced Global Muons: {displacedMuons.size()}")
+    print(f"\nDisplaced Global Muon multiplicity: {displacedMuons.size()}")
     h_multiplicity_preselection.Fill(displacedMuons.size())
 
     # Loop over the displaced global muon tracks
@@ -180,7 +196,7 @@ for j,event in enumerate(events):
         if gu.isInterestingMuon(dgmu, genMuonsList) == False: continue # skip the reco if its not matched to a gen-muon
 
         # displaced global muon info
-        print(f"  DisplacedGlobalMuon {j}:")
+        print(f"  DisplacedGlobalMuon {j}/{len(displacedMuons)}:")
         print(f"    pT: {dgmu.pt():.3f} GeV")
         print(f"    eta: {dgmu.eta():.3f}")
         print(f"    phi: {dgmu.phi():.3f}")
@@ -200,11 +216,12 @@ for j,event in enumerate(events):
         # Fill the generated Lxy histogram for the actual muons used in the analysis
         for genMuon in genMuonsList:
             h_genlxy_filter.Fill(math.hypot(genMuon.vx(), genMuon.vy()))
+            h_genpt_filter.Fill(genMuon.pt())
 
         # is matched to a good displaced track?
         for k, dtrack in enumerate(displacedTracks):
             if gu.deltaR(dgmu, dtrack) < 0.2:
-                print(f"  DisplacedTrack {k}:")
+                print(f"  DisplacedTrack {k}/{len(displacedTracks)}:")
                 print(f"    pT: {dtrack.pt():.3f} GeV")
                 print(f"    eta: {dtrack.eta():.3f}")
                 print(f"    phi: {dtrack.phi():.3f}")
@@ -217,7 +234,43 @@ for j,event in enumerate(events):
                 print(f"    algoName: {dtrack.algoName()}")
                 h_algo.Fill(dtrack.algo()) 
                 h_originalAlgo.Fill(dtrack.originalAlgo()) 
-                
+
+        # is matched to a DSA track
+        for k, dsa in enumerate(displacedStandAloneMuons):
+            if gu.deltaR(dgmu, dsa) < 0.2:
+                print(f"  DisplacedStandAloneMuon {k}/{len(displacedStandAloneMuons)}:")
+                print(f"    pT: {dsa.pt():.3f} GeV")
+                print(f"    eta: {dsa.eta():.3f}")
+                print(f"    phi: {dsa.phi():.3f}")
+                print(f"    d0 (cm): {dsa.d0():.4f} ")
+                print(f"    dxy (cm): {dsa.dxy():.4f} ")
+                print(f"    chi2/ndof: {dsa.normalizedChi2():.2f}")
+                print(f"    hits: {dsa.numberOfValidHits()}")
+                print(f"    algo: {dsa.algo()}")
+                print(f"    originalAlgo: {dsa.originalAlgo()}")
+                print(f"    algoName: {dsa.algoName()}")
+                h_pt_dsa.Fill(dsa.pt())
+        
+        # is it matched to an early muon?
+        for k, early in enumerate(earlyDisplacedMuons):
+            earlyOuter = early.outerTrack()
+            earlyInner = early.innerTrack() # Somehow inner track is not working (not used below)
+            if earlyOuter.isNull() == True: continue
+            # Outer track needs to be available 
+            if gu.deltaR(dgmu, earlyOuter) < 0.2:
+                print(f"  EarlyDisplacedMuon {k}:{len(earlyDisplacedMuons)}:")
+                print(f"    pT : {early.pt():.3f} GeV")
+                print(f"    eta : {early.eta():.3f}")
+                print(f"    phi : {early.phi():.3f}")
+                print(f"    pT (outer): {earlyOuter.pt():.3f} GeV")
+                print(f"    eta (outer): {earlyOuter.eta():.3f}")
+                print(f"    phi (outer): {earlyOuter.phi():.3f}")
+                #print(f"    pT (inner): {earlyInner.pt():.3f} GeV")
+                #print(f"    eta (inner): {earlyInner.eta():.3f}")
+                #print(f"    phi (inner): {earlyInner.phi():.3f}")
+                h_pt_early.Fill(early.pt())
+                h_pt_earlyOuter.Fill(earlyOuter.pt())
+
         # Counters
         muon_count += 1
         total_muons += 1
@@ -230,29 +283,30 @@ for j,event in enumerate(events):
             hitCounter = 0
             if recHitIt != recHitEnd:
                 if recHitIt.isValid() == True:
-                    print("  recHitIt.isValid(): ", recHitIt.isValid())
-                    print("  recHitIt.getType(): ", recHitIt.getType())
-                    print("  recHitIt.localPosition(): ", recHitIt.geographicalId().det())
-                    print("  recHitIt.localPosition().x(): ", recHitIt.localPosition().x())
-                    print("  recHitIt.localPosition().y(): ", recHitIt.localPosition().y())
-                    print("  recHitIt.localPosition().z(): ", recHitIt.localPosition().z())
+                    print(f"  recHitIt.isValid(): {recHitIt.isValid()}")
+                    print(f"  recHitIt.getType(): {recHitIt.getType()}")
+                    print(f"  recHitIt.localPosition(): {recHitIt.geographicalId().det()}")
+                    print(f"  recHitIt.localPosition().x(): {recHitIt.localPosition().x()}")
+                    print(f"  recHitIt.localPosition().y(): {recHitIt.localPosition().y()}")
+                    print(f"  recHitIt.localPosition().z(): {recHitIt.localPosition().z()}")
                 recHitIt += 1
                 hitCounter += 1
             print("nHits: ", hitCounter)
+        h_nSeeds.Fill(len(seeds))
         
         print("debug outInTracks")
         for i, outInTrack in enumerate(outInTracks):
-            print("  outInTrack: ", i)
-            print("    pT: ", outInTrack.pt())
-            print("    eta: ", outInTrack.eta())
-            print("    phi: ", outInTrack.phi())
+            print(f"  outInTrack: {i}/{len(outInTracks)}:")
+            print(f"    pT: {outInTrack.pt()}")
+            print(f"    eta: {outInTrack.eta()}")
+            print(f"    phi: {outInTrack.phi()}")
 
     # actual muon multiplicity/event used in the analysis
     h_multiplicity.Fill(muon_count)
 
     # end of the event
-    import pdb
-    pdb.set_trace()
+    #import pdb
+    #pdb.set_trace()
 
 # Print summary
 print(f"Processed {event_count}/{total_events} events, found {total_muons} displaced global muons")
@@ -297,7 +351,13 @@ create_and_save_plot(h_d0, output_root, plots_dir, ROOT.kRed)
 create_and_save_plot(h_algo, output_root, plots_dir, ROOT.kGreen)
 create_and_save_plot(h_originalAlgo, output_root, plots_dir, ROOT.kGreen)
 create_and_save_plot(h_genlxy, output_root, plots_dir, ROOT.kOrange)
+create_and_save_plot(h_genpt, output_root, plots_dir, ROOT.kOrange)
 create_and_save_plot(h_genlxy_filter, output_root, plots_dir, ROOT.kOrange)
+create_and_save_plot(h_genpt_filter, output_root, plots_dir, ROOT.kOrange)
+create_and_save_plot(h_pt_dsa, output_root, plots_dir, ROOT.kRed)
+create_and_save_plot(h_pt_earlyOuter, output_root, plots_dir, ROOT.kRed)
+create_and_save_plot(h_pt_early, output_root, plots_dir, ROOT.kRed)
+create_and_save_plot(h_nSeeds, output_root, plots_dir, ROOT.kRed)
 
 # Close the output ROOT file
 output_root.Close()

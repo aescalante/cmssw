@@ -9,10 +9,12 @@ parser.add_argument('--MaxDisplacement', type=float, default=0.5, help='Max disp
 parser.add_argument('--MaxSagitta', type=float, default=2.0, help='Max sagitta value (default: 2)')
 parser.add_argument('--nSigma', type=float, default=3, help='nSigma value (default: 5)')
 parser.add_argument('--fromVertex', action='store_true', help='Impose a fromVertex requirement in muon seeding (default: True)')
+parser.add_argument('--selection', type=str, help='change the seleciton on early displaced muons for seeding (default: pt > 10 && muonStationsWithValidHits >= 2)')
 parser.add_argument('--run', action='store_true', help='Run cmsRun with the generated config file immediately')
 parser.add_argument('--MaxEvents', '-n', type=int, default=-1, help='number of events to be processed (default: all events)')
 parser.add_argument('--output', '-o', type=str, default='/pnfs/ciemat.es/data/cms/store/user/escalant/displacedGlobalMuon_ReReco', help='Output folder')
 parser.add_argument('--postfix', '-p', type=str, default='', help='Add a postfix to the output file name (default: empty)')
+parser.add_argument('--debug', action='store_true', help='Enable debugging mode (default: False)')
 
 # Parse arguments
 args = parser.parse_args()
@@ -99,6 +101,14 @@ if args.fromVertex == True:
     process.muonSeededSeedsOutInDisplaced.fromVertex = True 
 else:
     process.muonSeededSeedsOutInDisplaced.fromVertex = False
+
+# change the selection on early displaced muons for seeding
+if args.selection:
+    process.muonSeededSeedsOutInDisplaced.cut = cms.string(args.selection)
+    print("  changed muonSeededSeedsOutInDisplaced.cut to :", process.muonSeededSeedsOutInDisplaced.cut)
+
+if args.debug == True:
+    process.muonSeededSeedsOutInDisplaced.debug = True
 
 print("use fromVertex in  constraint in muon seeding?")
 print(process.muonSeededSeedsOutInDisplaced.fromVertex)
