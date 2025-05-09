@@ -28,9 +28,50 @@
 #-l "vtx = True" "vtx = False (default)" \
 #-p "vtx" 
 
+# multiply histograms from miltiple files
 python3 makePlots_ReReco.py -f plots/ReReco_SMuonToMuGravitino_M_100_ctau_2000mm_chi2_30.0_disp_0.5_sag_2.0_sig_3_histograms.root \
 plots/ReReco_SMuonToMuGravitino_M_100_ctau_2000mm_chi2_30.0_disp_0.5_sag_2.0_sig_3_quality_histograms.root \
 plots/ReReco_SMuonToMuGravitino_M_100_ctau_2000mm_chi2_30.0_disp_0.5_sag_2.0_sig_3_noselection_histograms.root \
 plots/ReReco_SMuonToMuGravitino_M_100_ctau_2000mm_chi2_30.0_disp_0.5_sag_2.0_sig_3_vtx_noselection_histograms.root \
 -l "cut = default" "cut = quality" "cut = nocut" "cut = nocut + vtx" \
 -p "selection" 
+
+
+# plot with different histograms from different files
+python3 makePlots_ReReco.py \
+-f plots/ReReco_SMuonToMuGravitino_M_100_ctau_2000mm_chi2_30.0_disp_0.5_sag_2.0_sig_3_histograms.root \
+   plots/ReReco_SMuonToMuGravitino_M_100_ctau_2000mm_chi2_30.0_disp_0.5_sag_2.0_sig_3_vtx_noselection_histograms.root \
+--histograms "h_genpt" "h_genpt_dsa" "h_genpt_dgb" "h_genpt_dgb" \
+--file-index 0 0 0 1 \
+-l "Gen muons" "DSA matched" "DGB matched" "DGB (new)" \
+-p "genpt_comparison"
+
+python3 makePlots_ReReco.py \
+-f plots/ReReco_SMuonToMuGravitino_M_100_ctau_2000mm_chi2_30.0_disp_0.5_sag_2.0_sig_3_histograms.root \
+   plots/ReReco_SMuonToMuGravitino_M_100_ctau_2000mm_chi2_30.0_disp_0.5_sag_2.0_sig_3_vtx_noselection_histograms.root \
+--histograms "h_geneta" "h_geneta_dsa" "h_geneta_dgb" "h_geneta_dgb" \
+--file-index 0 0 0 1 \
+-l "Gen muons" "DSA matched" "DGB matched" "DGB (new)" \
+-p "geneta_comparison"
+
+# Example showing how to plot histograms with ratio panel - basic version to test
+python3 makePlots_ReReco.py \
+-f plots/ReReco_SMuonToMuGravitino_M_100_ctau_2000mm_chi2_30.0_disp_0.5_sag_2.0_sig_3_histograms.root \
+   plots/ReReco_SMuonToMuGravitino_M_100_ctau_2000mm_chi2_30.0_disp_0.5_sag_2.0_sig_3_vtx_noselection_histograms.root \
+--histograms "h_genpt" "h_genpt_dsa" "h_genpt_dgb" "h_genpt_dgb" \
+--file-index 0 0 0 1 \
+-l "Gen muons" "DSA matched" "DGB matched" "DGB (new)" \
+-p "genpt_comparison_with_ratio" \
+--ratio \
+--ratio-indices 3 2
+
+# Example showing how to plot histograms with ratio panel - basic version to test
+python3 makePlots_ReReco.py \
+-f plots/ReReco_SMuonToMuGravitino_M_100_ctau_2000mm_chi2_30.0_disp_0.5_sag_2.0_sig_3_histograms.root \
+   plots/ReReco_SMuonToMuGravitino_M_100_ctau_2000mm_chi2_30.0_disp_0.5_sag_2.0_sig_3_vtx_noselection_histograms.root \
+--histograms "h_geneta" "h_geneta_dsa" "h_geneta_dgb" "h_geneta_dgb" \
+--file-index 0 0 0 1 \
+-l "Gen muons" "DSA matched" "DGB matched" "DGB (new)" \
+-p "geneta_comparison_with_ratio" \
+--ratio \
+--ratio-indices 3 2

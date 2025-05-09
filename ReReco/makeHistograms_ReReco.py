@@ -97,20 +97,35 @@ def create_histogram(name, title, nbins, xmin, xmax, x_title, y_title):
     return hist
 
 # Create histograms for basic checks
-h_multiplicity_preselection = create_histogram("h_multiplicity_preselection", "Displaced Global Muon Multiplicity", 8, 0, 8, "Number of Displaced Global Muons (before matching)", "Events")
+
+# gen level
+h_genlxy_all= create_histogram("h_genlxy_all", "Generated Lxy", 250, 0, 500, "L_{xy} [cm]", "Entries")
+h_genpt_all= create_histogram("h_genpt_all", "Generated muon pT ", 40, 0, 200, "p_{T} [GeV]", "Entries")
+h_geneta_all= create_histogram("h_geneta_all", "Generated muon #eta ", 15, -2.5, 2.5, "#eta", "Entries")
+h_genlxy = create_histogram("h_genlxy", "Generated Lxy", 100, 0, 100, "L_{xy} [cm]", "Entries")
+h_genpt = create_histogram("h_genpt", "Generated muon pT ", 40, 0, 200, "p_{T} [GeV]", "Entries")
+h_geneta = create_histogram("h_geneta", "Generated muon #eta", 15, -2.5, 2.5, "#eta", "Entries")
+h_genpt_dsa = create_histogram("h_genpt_dsa", "Generated muon pT (matched to dsa)", 40, 0, 200, "p_{T} [GeV]", "Entries")
+h_geneta_dsa = create_histogram("h_geneta_dsa", "Generated muon #eta (matched to dsa)", 15, -2.5, 2.5, "#eta", "Entries")
+h_genpt_dgb = create_histogram("h_genpt_dgb", "Generated muon pT (matched to dgm)", 40, 0, 200, "p_{T} [GeV]", "Entries")
+h_geneta_dgb = create_histogram("h_geneta_dgb", "Generated muon #eta (matched to dgm)", 15, -2.5, 2.5, "#eta", "Entries")
+
+# reco level
+h_multiplicity_all = create_histogram("h_multiplicity_all", "Displaced Global Muon Multiplicity", 8, 0, 8, "Number of Displaced Global Muons (before matching)", "Events")
 h_multiplicity = create_histogram("h_multiplicity", "Displaced Global Muon Multiplicity", 8, 0, 8, "Number of Displaced Global Muons", "Events")
 h_pt = create_histogram("h_pt", "Displaced Global Muon p_{T}", 40, 0, 200, "p_{T} [GeV]", "Entries")
 h_eta = create_histogram("h_eta", "Displaced Global Muon #eta", 15, -2.5, 2.5, "#eta", "Entries")
 h_d0 = create_histogram("h_d0", "Displaced Global Muon d0", 65, 0, 65, "d0 [cm]", "Entries")  
-h_algo = create_histogram("h_algo", "Displaced Track algo", 20, 0, 20, "algo", "Entries")
-h_originalAlgo = create_histogram("h_originalAlgo", "Displaced Track algo", 20, 0, 20, "originalAlgo", "Entries")
-h_genlxy = create_histogram("h_genlxy", "Generated Lxy", 250, 0, 500, "L_{xy} [cm]", "Entries")
-h_genpt = create_histogram("h_genpt", "Generated muon pT ", 40, 0, 200, "p_{T} [GeV]", "Entries")
-h_genlxy_filter = create_histogram("h_genlxy_filter", "Generated Lxy", 100, 0, 100, "L_{xy} [cm]", "Entries")
-h_genpt_filter = create_histogram("h_genpt_filter", "Generated muon pT ", 40, 0, 200, "p_{T} [GeV]", "Entries")
+h_algo_dtk = create_histogram("h_algo_dtk", "Displaced Track algo", 20, 0, 20, "algo", "Entries")
+h_originalAlgo_dtk = create_histogram("h_originalAlgo_dtk", "Displaced Track algo", 20, 0, 20, "originalAlgo", "Entries")
+h_pt_dtk = create_histogram("h_pt_dtk", "Displaced Track p_{T}", 40, 0, 200, "p_{T} [GeV]", "Entries")
+h_dr_dtk = create_histogram("h_dr_dtk", "dR(dgb, dtk)", 40, 0, 0.5, "#Delta R", "Entries")
 h_pt_dsa = create_histogram("h_pt_dsa", "Displaced StandAlone ", 40, 0, 200, "p_{T} [GeV]", "Entries")
+h_dr_dsa = create_histogram("h_dr_dsa", "dR(dgb, dsa)", 40, 0, 0.5, "#Delta R", "Entries")
 h_pt_earlyOuter = create_histogram("h_pt_earlyOuter", "Early Outer ", 40, 0, 200, "p_{T} [GeV]", "Entries")
+h_dr_earlyOuter = create_histogram("h_dr_earlyOuter", "dR(dgb, earlyOuter)", 40, 0, 0.5, "#Delta R", "Entries")
 h_pt_early = create_histogram("h_pt_early", "Early ", 40, 0, 200, "p_{T} [GeV]", "Entries")
+h_dr_early = create_histogram("h_dr_early", "dR(dgb, early)", 40, 0, 0.5, "#Delta R", "Entries")
 h_nSeeds = create_histogram("h_nSeeds", "Number of Seeds", 30, 0, 30, "Number of Seeds", "Entries")
 
 # loop over the events and fill the histograms
@@ -156,8 +171,9 @@ for j,event in enumerate(events):
                 genMuonsList.append(genParticle)
                 gen_lxy = math.hypot(genParticle.vx(), genParticle.vy())
                 print("  Lxy: ", gen_lxy)
-                h_genlxy.Fill(gen_lxy)
-                h_genpt.Fill(genParticle.pt())
+                h_genlxy_all.Fill(gen_lxy)
+                h_genpt_all.Fill(genParticle.pt())
+                h_geneta_all.Fill(genParticle.eta())
 
     if len(genMuonsList) != 2:
         print("Skipping event, not 2 muons; Why?")
@@ -187,15 +203,37 @@ for j,event in enumerate(events):
 
     # dGB multiplicity
     print(f"\nDisplaced Global Muon multiplicity: {displacedMuons.size()}")
-    h_multiplicity_preselection.Fill(displacedMuons.size())
+    h_multiplicity_all.Fill(displacedMuons.size())
+
+    # get interesting gen muons for further analysis
+    genMuonsAnalysis = gu.getInterestingGenMuons(genMuonsList)
+    if len(genMuonsAnalysis) == 0: continue # skip the event if there are no interesting gen muons
+
+    # Fill the generated Lxy histogram for the actual muons used in the analysis
+    for genMuon in genMuonsAnalysis:
+        h_genlxy.Fill(math.hypot(genMuon.vx(), genMuon.vy()))
+        h_genpt.Fill(genMuon.pt())
+        h_geneta.Fill(genMuon.eta())
+
+    # Loop over displaced stand alone muons
+    for j, dsa in enumerate(displacedStandAloneMuons):
+        # check if the dsa is matched to a gen
+        gen_dsa_index = gu.getGenMuonIndex(dsa, genMuonsAnalysis)
+        if gen_dsa_index > -1:
+            genMuon_dsa = genMuonsAnalysis[gen_dsa_index]
+            h_genpt_dsa.Fill(genMuon_dsa.pt())
+            h_geneta_dsa.Fill(genMuon_dsa.eta())
 
     # Loop over the displaced global muon tracks
     for j, dgmu in enumerate(displacedMuons):
+        # check if the dgb is matched to a gen
+        gen_dgm_index = gu.getGenMuonIndex(dgmu, genMuonsAnalysis)
+        if gen_dgm_index > -1:
+            genMuon_dgm = genMuonsAnalysis[gen_dgm_index]
+            h_genpt_dgb.Fill(genMuon_dgm.pt())
+            h_geneta_dgb.Fill(genMuon_dgm.eta())
 
-        # is interesting muon?
-        if gu.isInterestingMuon(dgmu, genMuonsList) == False: continue # skip the reco if its not matched to a gen-muon
-
-        # displaced global muon info
+        # displaced global muon block
         print(f"  DisplacedGlobalMuon {j}/{len(displacedMuons)}:")
         print(f"    pT: {dgmu.pt():.3f} GeV")
         print(f"    eta: {dgmu.eta():.3f}")
@@ -208,19 +246,14 @@ for j,event in enumerate(events):
         print(f"    originalAlgo: {dgmu.originalAlgo()}") 
         print(f"    algoName: {dgmu.algoName()}") 
 
-        # Fill displaced global muon pT histogram
+        # Fill displaced global muon histograms
         h_pt.Fill(dgmu.pt())
         h_eta.Fill(dgmu.eta())
         h_d0.Fill(abs(dgmu.d0()))
 
-        # Fill the generated Lxy histogram for the actual muons used in the analysis
-        for genMuon in genMuonsList:
-            h_genlxy_filter.Fill(math.hypot(genMuon.vx(), genMuon.vy()))
-            h_genpt_filter.Fill(genMuon.pt())
-
-        # is matched to a good displaced track?
+        # is it matched to a good displaced track?
         for k, dtrack in enumerate(displacedTracks):
-            if gu.deltaR(dgmu, dtrack) < 0.2:
+            if gu.deltaR(dgmu, dtrack) < 0.015: # tight matching
                 print(f"  DisplacedTrack {k}/{len(displacedTracks)}:")
                 print(f"    pT: {dtrack.pt():.3f} GeV")
                 print(f"    eta: {dtrack.eta():.3f}")
@@ -232,12 +265,14 @@ for j,event in enumerate(events):
                 print(f"    algo: {dtrack.algo()}")
                 print(f"    originalAlgo: {dtrack.originalAlgo()}")
                 print(f"    algoName: {dtrack.algoName()}")
-                h_algo.Fill(dtrack.algo()) 
-                h_originalAlgo.Fill(dtrack.originalAlgo()) 
-
-        # is matched to a DSA track
+                h_algo_dtk.Fill(dtrack.algo()) 
+                h_originalAlgo_dtk.Fill(dtrack.originalAlgo()) 
+                h_pt_dtk.Fill(dtrack.pt())
+                h_dr_dtk.Fill(gu.deltaR(dgmu, dtrack))
+        
+        # is matched to a dsa?
         for k, dsa in enumerate(displacedStandAloneMuons):
-            if gu.deltaR(dgmu, dsa) < 0.2:
+            if gu.deltaR(dgmu, dsa) < 0.3:
                 print(f"  DisplacedStandAloneMuon {k}/{len(displacedStandAloneMuons)}:")
                 print(f"    pT: {dsa.pt():.3f} GeV")
                 print(f"    eta: {dsa.eta():.3f}")
@@ -250,6 +285,7 @@ for j,event in enumerate(events):
                 print(f"    originalAlgo: {dsa.originalAlgo()}")
                 print(f"    algoName: {dsa.algoName()}")
                 h_pt_dsa.Fill(dsa.pt())
+                h_dr_dsa.Fill(gu.deltaR(dgmu, dsa))
         
         # is it matched to an early muon?
         for k, early in enumerate(earlyDisplacedMuons):
@@ -257,7 +293,7 @@ for j,event in enumerate(events):
             earlyInner = early.innerTrack() # Somehow inner track is not working (not used below)
             if earlyOuter.isNull() == True: continue
             # Outer track needs to be available 
-            if gu.deltaR(dgmu, earlyOuter) < 0.2:
+            if gu.deltaR(dgmu, earlyOuter) < 0.3:
                 print(f"  EarlyDisplacedMuon {k}:{len(earlyDisplacedMuons)}:")
                 print(f"    pT : {early.pt():.3f} GeV")
                 print(f"    eta : {early.eta():.3f}")
@@ -269,7 +305,9 @@ for j,event in enumerate(events):
                 #print(f"    eta (inner): {earlyInner.eta():.3f}")
                 #print(f"    phi (inner): {earlyInner.phi():.3f}")
                 h_pt_early.Fill(early.pt())
+                h_dr_early.Fill(gu.deltaR(dgmu, early))
                 h_pt_earlyOuter.Fill(earlyOuter.pt())
+                h_dr_earlyOuter.Fill(gu.deltaR(dgmu, earlyOuter))
 
         # Counters
         muon_count += 1
@@ -343,20 +381,32 @@ def create_and_save_plot(histogram, output_root, output_dir, color=ROOT.kRed):
     histogram.Write()
 
 # Create and save all plots
-create_and_save_plot(h_multiplicity_preselection, output_root, plots_dir, ROOT.kBlue)
+create_and_save_plot(h_genlxy_all, output_root, plots_dir, ROOT.kOrange)
+create_and_save_plot(h_genpt_all, output_root, plots_dir, ROOT.kOrange)
+create_and_save_plot(h_geneta_all, output_root, plots_dir, ROOT.kOrange)
+create_and_save_plot(h_genlxy, output_root, plots_dir, ROOT.kOrange)
+create_and_save_plot(h_genpt, output_root, plots_dir, ROOT.kOrange)
+create_and_save_plot(h_geneta, output_root, plots_dir, ROOT.kOrange)
+create_and_save_plot(h_genpt_dsa, output_root, plots_dir, ROOT.kOrange)
+create_and_save_plot(h_geneta_dsa, output_root, plots_dir, ROOT.kOrange)
+create_and_save_plot(h_genpt_dgb, output_root, plots_dir, ROOT.kOrange)
+create_and_save_plot(h_geneta_dgb, output_root, plots_dir, ROOT.kOrange)
+
+create_and_save_plot(h_multiplicity_all, output_root, plots_dir, ROOT.kBlue)
 create_and_save_plot(h_multiplicity, output_root, plots_dir, ROOT.kBlue)
 create_and_save_plot(h_pt, output_root, plots_dir, ROOT.kRed)
 create_and_save_plot(h_eta, output_root, plots_dir, ROOT.kRed)
 create_and_save_plot(h_d0, output_root, plots_dir, ROOT.kRed)
-create_and_save_plot(h_algo, output_root, plots_dir, ROOT.kGreen)
-create_and_save_plot(h_originalAlgo, output_root, plots_dir, ROOT.kGreen)
-create_and_save_plot(h_genlxy, output_root, plots_dir, ROOT.kOrange)
-create_and_save_plot(h_genpt, output_root, plots_dir, ROOT.kOrange)
-create_and_save_plot(h_genlxy_filter, output_root, plots_dir, ROOT.kOrange)
-create_and_save_plot(h_genpt_filter, output_root, plots_dir, ROOT.kOrange)
+create_and_save_plot(h_algo_dtk, output_root, plots_dir, ROOT.kGreen)
+create_and_save_plot(h_originalAlgo_dtk, output_root, plots_dir, ROOT.kGreen)
+create_and_save_plot(h_pt_dtk, output_root, plots_dir, ROOT.kGreen)
+create_and_save_plot(h_dr_dtk, output_root, plots_dir, ROOT.kGreen)
 create_and_save_plot(h_pt_dsa, output_root, plots_dir, ROOT.kRed)
+create_and_save_plot(h_dr_dsa, output_root, plots_dir, ROOT.kRed)
 create_and_save_plot(h_pt_earlyOuter, output_root, plots_dir, ROOT.kRed)
+create_and_save_plot(h_dr_earlyOuter, output_root, plots_dir, ROOT.kRed)
 create_and_save_plot(h_pt_early, output_root, plots_dir, ROOT.kRed)
+create_and_save_plot(h_dr_early, output_root, plots_dir, ROOT.kRed)
 create_and_save_plot(h_nSeeds, output_root, plots_dir, ROOT.kRed)
 
 # Close the output ROOT file

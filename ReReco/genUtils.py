@@ -15,13 +15,28 @@ def deltaR(a,b):
     dphi = deltaPhi(a,b)
     return math.hypot(a.eta()-b.eta(),dphi)
 
-def isInterestingMuon(reco, gen):
+def getInterestingGenMuons(gen):
     '''
-    checks if the reco muon is matched to a gen muon
+    returns a list with the interesting gen muons
     '''
+    interestingGen = []
     for g in gen:
         # check if the gen level muon originated inside the tracker (and in the acceptance)
         if math.hypot(g.vx(), g.vy()) < 65 and abs(g.eta()) < 2.4:
             if abs(g.pdgId()) == 13 and g.isLastCopy() == True:
-                if deltaR(reco,g) < 0.2: return True
-    return False
+                interestingGen.append(g)
+    return interestingGen
+
+def getGenMuonIndex(reco, gen):
+    '''
+    tries a matching between reco and gen muons and returns the gen muon
+    '''
+    matchedGenIndex = -1
+    minDr = 999
+    for index, g in enumerate(gen):
+        if deltaR(reco,g) < 0.2: 
+            if deltaR(reco,g) < minDr:
+                matchedGenIndex = index
+                minDr = deltaR(reco,g)
+    
+    return matchedGenIndex
