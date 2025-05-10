@@ -75,3 +75,53 @@ python3 makePlots_ReReco.py \
 -p "geneta_comparison_with_ratio" \
 --ratio \
 --ratio-indices 3 2
+
+python3 makePlots_ReReco.py -f plots/ReReco_SMuonToMuGravitino_M_100_ctau_2000mm_chi2_30.0_disp_0.5_sag_2.0_sig_3_histograms.root \
+plots/ReReco_SMuonToMuGravitino_M_100_ctau_2000mm_chi2_30.0_disp_0.5_sag_2.0_sig_3_quality_histograms.root \
+plots/ReReco_SMuonToMuGravitino_M_100_ctau_2000mm_chi2_30.0_disp_0.5_sag_2.0_sig_3_noselection_histograms.root \
+plots/ReReco_SMuonToMuGravitino_M_100_ctau_2000mm_chi2_30.0_disp_0.5_sag_2.0_sig_3_vtx_noselection_histograms.root \
+--histograms "h_pt" "h_pt" "h_pt" "h_pt" \
+--file-index 0 1 2 3 \
+-l "cut = default" "cut = quality" "cut = nocut" "cut = nocut + vtx" \
+-p "pt_comparison_with_ratio" \
+--ratio \
+--ratio-indices 3 0 \
+--log-y
+
+
+python3 makePlots_ReReco.py -f plots/ReReco_SMuonToMuGravitino_M_100_ctau_2000mm_chi2_30.0_disp_0.5_sag_2.0_sig_3_histograms.root \
+plots/ReReco_SMuonToMuGravitino_M_100_ctau_2000mm_chi2_30.0_disp_0.5_sag_2.0_sig_3_quality_histograms.root \
+plots/ReReco_SMuonToMuGravitino_M_100_ctau_2000mm_chi2_30.0_disp_0.5_sag_2.0_sig_3_noselection_histograms.root \
+plots/ReReco_SMuonToMuGravitino_M_100_ctau_2000mm_chi2_30.0_disp_0.5_sag_2.0_sig_3_vtx_noselection_histograms.root \
+--histograms "h_pt_dsa" "h_pt_dsa" "h_pt_dsa" "h_pt_dsa" \
+--file-index 0 1 2 3 \
+-l "cut = default" "cut = quality" "cut = nocut" "cut = nocut + vtx" \
+-p "ptdsa_comparison_with_ratio" \
+--ratio \
+--ratio-indices 1 0 \
+--log-y
+
+
+python3 makePlots_ReReco.py -f plots/ReReco_SMuonToMuGravitino_M_100_ctau_2000mm_chi2_30.0_disp_0.5_sag_2.0_sig_3_histograms.root \
+plots/ReReco_SMuonToMuGravitino_M_100_ctau_2000mm_chi2_30.0_disp_0.5_sag_2.0_sig_3_quality_histograms.root \
+plots/ReReco_SMuonToMuGravitino_M_100_ctau_2000mm_chi2_30.0_disp_0.5_sag_2.0_sig_3_noselection_histograms.root \
+plots/ReReco_SMuonToMuGravitino_M_100_ctau_2000mm_chi2_30.0_disp_0.5_sag_2.0_sig_3_vtx_noselection_histograms.root \
+--histograms "h_pt_early" "h_pt_early" "h_pt_early" "h_pt_early" \
+--file-index 0 1 2 3 \
+-l "cut = default" "cut = quality" "cut = nocut" "cut = nocut + vtx" \
+-p "ptearly_comparison_with_ratio" \
+--ratio \
+--ratio-indices 1 0 \
+--log-y
+
+python3 makePlots_ReReco.py -f plots/ReReco_SMuonToMuGravitino_M_100_ctau_2000mm_chi2_30.0_disp_0.5_sag_2.0_sig_3_histograms.root \
+plots/ReReco_SMuonToMuGravitino_M_100_ctau_2000mm_chi2_30.0_disp_0.5_sag_2.0_sig_3_quality_histograms.root \
+plots/ReReco_SMuonToMuGravitino_M_100_ctau_2000mm_chi2_30.0_disp_0.5_sag_2.0_sig_3_noselection_histograms.root \
+plots/ReReco_SMuonToMuGravitino_M_100_ctau_2000mm_chi2_30.0_disp_0.5_sag_2.0_sig_3_vtx_noselection_histograms.root \
+--histograms "h_d0" "h_d0" "h_d0" "h_d0" \
+--file-index 0 1 2 3 \
+-l "cut = default" "cut = quality" "cut = nocut" "cut = nocut + vtx" \
+-p "d0_comparison_with_ratio" \
+--ratio \
+--ratio-indices 3 0 \
+--log-y

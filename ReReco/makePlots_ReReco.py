@@ -29,7 +29,6 @@ def parse_args():
     parser.add_argument('--file-index', '-i', type=int, nargs='+', default=None,
                        help='File index for each histogram (0-based). If not provided, all histograms are taken from first file')
     
-    # Add new ratio plot options
     parser.add_argument('--ratio', '-r', action='store_true',
                        help='Add a ratio plot in the lower pad')
     
@@ -38,6 +37,9 @@ def parse_args():
     
     parser.add_argument('--ratio-label', type=str, default=None,
                        help='Label for the ratio plot y-axis. Default: "Ratio"')
+    
+    parser.add_argument('--log-y', action='store_true',
+                       help='Use logarithmic scale for y-axis')
     
     args = parser.parse_args()
     
@@ -250,8 +252,8 @@ def make_comparison_plot_with_ratio(hists, title, x_title, y_title, output_path,
     info_text.SetNDC()
     info_text.SetTextFont(42)
     info_text.SetTextSize(0.045)
-    info_text.DrawLatex(0.26, 0.93, "Simulation Private Work")  # More space after CMS
-    info_text.DrawLatex(0.72, 0.93, "Run 3 (13.6 TeV)")  # Adjusted position
+    info_text.DrawLatex(0.26, 0.93, "Simulation Private Work")  
+    info_text.DrawLatex(0.72, 0.93, "Run 3 (13.6 TeV)") 
     
     # Lower pad for ratio
     lower_pad.cd()
@@ -477,7 +479,7 @@ def main():
                 print(f"Error: Invalid ratio indices {num_idx}, {denom_idx}. Valid range is 0 to {len(histograms)-1}")
                 exit(1)
                 
-            # Create plot with ratio panel
+            # Create plot with ratio panel 
             make_comparison_plot_with_ratio(
                 histograms, 
                 "Comparison", 
@@ -487,11 +489,11 @@ def main():
                 legends, 
                 args.ratio_indices, 
                 args.ratio_label, 
-                False, 
-                False
+                False,  # normalize
+                args.log_y 
             )
         else:
-            # Create standard comparison plot
+            # Create standard comparison plot 
             make_comparison_plot(
                 histograms, 
                 "Comparison", 
@@ -499,8 +501,8 @@ def main():
                 y_title, 
                 output_path, 
                 legends, 
-                False, 
-                False
+                False,  # normalize
+                args.log_y  
             )
     
     # Handle other modes
@@ -508,34 +510,34 @@ def main():
     elif args.files and len(args.files) > 1 and not args.histograms:
         # Histogram configurations: (name, title, x_title, y_title, normalize, log_y)
         hist_configs = [
-            ("h_genpt_all", "Gen  p_{T}", "p_{T} [GeV]", "Number of Gen muons", False, False),
-            ("h_genpt", "Gen  p_{T}", "p_{T} [GeV]", "Number of Gen muons", False, False),
+            ("h_genpt_all", "Gen  p_{T}", "p_{T} gen [GeV]", "Number of Gen muons", False, False),
+            ("h_genpt", "Gen  p_{T}", "p_{T} gen [GeV]", "Number of Gen muons", False, False),
             ("h_geneta", "Gen #eta", "#eta", "Number of Gen muons", False, False),
             ("h_genlxy", "Gen $L_{xy}$", "$L_{xy}$", "Number of Gen muons", False, False),
-            ("h_genpt_dsa", "Gen  p_{T}", "p_{T} [GeV]", "Number of Gen muons matched to dsa", False, False),
+            ("h_genpt_dsa", "Gen  p_{T}", "p_{T} gen [GeV]", "Number of Gen muons matched to dsa", False, False),
             ("h_geneta_dsa", "Gen #eta", "#eta", "Number of Gen muons matched to dsa", False, False),
-            ("h_genpt_dgb", "Gen  p_{T}", "p_{T} [GeV]", "Number of Gen muons matched to dgm", False, False),        
+            ("h_genpt_dgb", "Gen  p_{T}", "p_{T} gen [GeV]", "Number of Gen muons matched to dgm", False, False),        
             ("h_geneta_dgb", "Gen #eta", "#eta", "Number of Gen muons matched to dgm", False, False),
             ("h_multiplicity_all", "Displaced Global Muon Multiplicity", "Number of Displaced Global Muons (before matching)", "Events", False, False),
             ("h_multiplicity", "Displaced Global Muon Multiplicity", "Number of Displaced Global Muons", "Events", False, False),
-            ("h_pt", "Displaced Global Muon p_{T}", "p_{T} [GeV]", "Number of Displaced Global Muons", False, False),
+            ("h_pt", "Displaced Global Muon p_{T}", "p_{T} DGB [GeV]", "Number of Displaced Global Muons", False, False),
             ("h_eta", "Displaced Global Muon #eta", "#eta", "Number of Displaced Global Muons", False, False),
             ("h_d0", "Displaced Global Muon d0", "d0 [cm]", "Number of Displaced Global Muons", False, True),
-            ("h_pt_dtk", "Displaced Track p_{T}", "p_{T} [GeV]", "Number of Displaced Tracks", False, False),
+            ("h_pt_dtk", "Displaced Track p_{T}", "p_{T} displaced Track [GeV]", "Number of Displaced Tracks", False, False),
             ("h_dr_dtk", "Displaced Track #Delta R(dgb, dtk)", "#Delta R(dgb, dtk)", "Number of Displaced Tracks", False, False),
             ("h_algo_dtk", "Displaced Track algo", "algo", "Number of Displaced Global Muons", False, False),
             ("h_originalAlgo_dtk", "Displaced Track original Algo", "original Algo", "Number of Displaced Global Muons", False, False),
-            ("h_pt_dsa", "Displaced StandAlone p_{T}", "p_{T} [GeV]", "Number of Displaced StandAlone Muons", False, False),
+            ("h_pt_dsa", "Displaced StandAlone p_{T}", "p_{T} DSA [GeV]", "Number of Displaced StandAlone Muons", False, False),
             ("h_dr_dsa", "Displaced StandAlone #Delta R(dgb, dsa)", "#Delta R(dgb, dsa)", "Number of Displaced StandAlone Muons", False, False),
-            ("h_pt_earlyOuter", "Early Outer p_{T}", "p_{T} [GeV]", "Number of Early Outer Muons", False, False),
+            ("h_pt_earlyOuter", "Early Outer p_{T}", "p_{T} early outer [GeV]", "Number of Early Outer Muons", False, False),
             ("h_dr_earlyOuter", "Early Outer #Delta R(dgb, earlyOuter)", "#Delta R(dgb, earlyOuter)", "Number of EarlyOuter Muons", False, False),
-            ("h_pt_early", "Early p_{T}", "p_{T} [GeV]", "Number of Early Muons", False, False),
+            ("h_pt_early", "Early p_{T}", "p_{T} early [GeV]", "Number of Early Muons", False, False),
             ("h_dr_earlyOuter", "Early #Delta R(dgb, early)", "#Delta R(dgb, early)", "Number of Early Muons", False, False),
             ("h_nSeeds", "Number of Seeds", "Number of Seeds", "Entries", False, False)
         ]
         
         # Process each histogram type
-        for hist_name, title, x_title, y_title, normalize, log_y in hist_configs:
+        for hist_name, title, x_title, y_title, normalize, hist_log_y in hist_configs:
             print(f"Processing histogram: {hist_name}")
             
             # Load histograms from all files
@@ -565,11 +567,17 @@ def main():
             output_filename = f"{args.prefix}_{hist_name}.png"
             output_path = os.path.join(args.output_dir, output_filename)
             
+            # Use command line argument for log-y if provided, otherwise use the config default
+            use_log_y = args.log_y if args.log_y else hist_log_y
+            
             # Create and save comparison plot
             if args.ratio:
-                make_comparison_plot_with_ratio(hists, title, x_title, y_title, output_path, args.legends, args.ratio_indices, args.ratio_label, normalize, log_y)
+                make_comparison_plot_with_ratio(hists, title, x_title, y_title, output_path, 
+                                             args.legends, args.ratio_indices, args.ratio_label, 
+                                             normalize, use_log_y)
             else:
-                make_comparison_plot(hists, title, x_title, y_title, output_path, args.legends, normalize, log_y)
+                make_comparison_plot(hists, title, x_title, y_title, output_path, 
+                                   args.legends, normalize, use_log_y)
     
     else:
         print("Invalid combination of arguments")

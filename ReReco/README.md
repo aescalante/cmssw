@@ -67,4 +67,7 @@ source submit_ReReco.sh
 
 # one can also run it with nohup, which is useful for long jobs (without using condor)
 nohup bash submit_ReReco.sh > output.log 2>&1 &
+
+# then to make the plots, one takes as input the histograms created in the previous step
+source submit_makePlots.sh
 ```
