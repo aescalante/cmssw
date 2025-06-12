@@ -61,6 +61,7 @@ python3 makeHistograms_ReReco.py -i ReReco_SMuonToMuGravitino_M_100_ctau_2000mm_
 python3 makeHistograms_ReReco.py -i ReReco_SMuonToMuGravitino_M_100_ctau_2000mm_chi2_15.0_disp_0.5_sag_2.0_sig_3.root
 python3 makeHistograms_ReReco.py -i ReReco_SMuonToMuGravitino_M_100_ctau_2000mm_chi2_30.0_disp_0.5_sag_2.0_sig_3.root
 python3 makeHistograms_ReReco.py -i ReReco_SMuonToMuGravitino_M_100_ctau_2000mm_chi2_120.0_disp_0.5_sag_2.0_sig_3.root
+python3 makeHistograms_ReReco.py -i ReReco_SMuonToMuGravitino_M_100_ctau_2000mm_chi2_120.0_disp_0.5_sag_2.0_sig_3_vtx_noselection.root
 
 # run over a .sh script with all configurations (might be worth using the batch system)
 source submit_ReReco.sh

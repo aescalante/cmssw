@@ -36,7 +36,6 @@ plots/ReReco_SMuonToMuGravitino_M_100_ctau_2000mm_chi2_30.0_disp_0.5_sag_2.0_sig
 -l "cut = default" "cut = quality" "cut = nocut" "cut = nocut + vtx" \
 -p "selection" 
 
-
 # plot with different histograms from different files
 python3 makePlots_ReReco.py \
 -f plots/ReReco_SMuonToMuGravitino_M_100_ctau_2000mm_chi2_30.0_disp_0.5_sag_2.0_sig_3_histograms.root \
@@ -125,3 +124,15 @@ plots/ReReco_SMuonToMuGravitino_M_100_ctau_2000mm_chi2_30.0_disp_0.5_sag_2.0_sig
 --ratio \
 --ratio-indices 3 0 \
 --log-y
+
+# Example of plot for 12 Jun 2025 presentation, where I show the imapct of the vtx requirement
+python3 makePlots_ReReco.py \
+-f plots/ReReco_SMuonToMuGravitino_M_100_ctau_2000mm_chi2_30.0_disp_0.5_sag_2.0_sig_3_histograms.root \
+   plots/ReReco_SMuonToMuGravitino_M_100_ctau_2000mm_chi2_30.0_disp_0.5_sag_2.0_sig_3_vtx_histograms.root \
+   plots/ReReco_SMuonToMuGravitino_M_100_ctau_2000mm_chi2_120.0_disp_0.5_sag_2.0_sig_3_vtx_noselection_histograms.root \
+--histograms "h_genpt" "h_genpt" "h_genpt" \
+--file-index 0 1 2 \
+-l "default" "vtx = True" "New" \
+-p "Jun12_genpt_comparison_with_ratio" \
+--ratio \
+--ratio-indices 2 0 \

@@ -109,13 +109,14 @@ h_genpt_dsa = create_histogram("h_genpt_dsa", "Generated muon pT (matched to dsa
 h_geneta_dsa = create_histogram("h_geneta_dsa", "Generated muon #eta (matched to dsa)", 15, -2.5, 2.5, "Gen. #eta", "Entries")
 h_genpt_dgb = create_histogram("h_genpt_dgb", "Generated muon pT (matched to dgm)", 40, 0, 200, "Gen. p_{T} [GeV]", "Entries")
 h_geneta_dgb = create_histogram("h_geneta_dgb", "Generated muon #eta (matched to dgm)", 15, -2.5, 2.5, "Gen. #eta", "Entries")
+h_genlxy_dgb = create_histogram("h_genlxy_dgb", "Generated Lxy (matched to dgm)", 14, 0, 70, "L_{xy} [cm]", "Entries")
 
 # reco level
 h_multiplicity_all = create_histogram("h_multiplicity_all", "Displaced Global Muon Multiplicity", 8, 0, 8, "Number of Displaced Global Muons (before matching)", "Events")
 h_multiplicity = create_histogram("h_multiplicity", "Displaced Global Muon Multiplicity", 8, 0, 8, "Number of Displaced Global Muons", "Events")
 h_pt = create_histogram("h_pt", "Displaced Global Muon p_{T}", 40, 0, 200, "DGB p_{T} [GeV]", "Entries")
 h_eta = create_histogram("h_eta", "Displaced Global Muon #eta", 15, -2.5, 2.5, "DGB #eta", "Entries")
-h_d0 = create_histogram("h_d0", "Displaced Global Muon d0", 65, 0, 65, "DGB d0 [cm]", "Entries")  
+h_d0 = create_histogram("h_d0", "Displaced Global Muon d0", 14, 0, 70, "DGB d0 [cm]", "Entries")  
 h_algo_dtk = create_histogram("h_algo_dtk", "Displaced Track algo", 20, 0, 20, "dTk algo", "Entries")
 h_originalAlgo_dtk = create_histogram("h_originalAlgo_dtk", "Displaced Track algo", 20, 0, 20, "dTk originalAlgo", "Entries")
 h_pt_dtk = create_histogram("h_pt_dtk", "Displaced Track p_{T}", 40, 0, 200, "dTk p_{T} [GeV]", "Entries")
@@ -127,6 +128,24 @@ h_dr_earlyOuter = create_histogram("h_dr_earlyOuter", "dR(dgb, earlyOuter)", 40,
 h_pt_early = create_histogram("h_pt_early", "Early ", 40, 0, 200, "Early p_{T} [GeV]", "Entries")
 h_dr_early = create_histogram("h_dr_early", "dR(dgb, early)", 40, 0, 0.5, "#Delta R(dgb, early)", "Entries")
 h_nSeeds = create_histogram("h_nSeeds", "Number of Seeds", 30, 0, 30, "Number of Seeds", "Entries")
+
+# Quality variables for displaced global muons
+h_vx = create_histogram("h_vx", "Displaced Global Muon v_{x} (at reference point)", 40, 0, 200, "DGB v_{x} [cm]", "Entries")
+h_vy = create_histogram("h_vy", "Displaced Global Muon v_{y} (at reference point)", 40, 0, 200, "DGB v_{y} [cm]", "Entries")
+h_vz = create_histogram("h_vz", "Displaced Global Muon v_{z} (at reference point)", 40, 0, 200, "DGB v_{z} [cm]", "Entries")
+h_r = create_histogram("h_r", "Displaced Global Muon r (at reference point)", 40, 0, 200, "DGB r [cm]", "Entries")
+h_ptError = create_histogram("h_ptError", "Displaced Global Muon relative p_{T} Error", 15, 0, 15, "DGB p_{T} Error [GeV]", "Entries")
+h_chi2 = create_histogram("h_chi2", "Displaced Global Muon #chi^{2}/ndof", 40, 0, 10, "DGB #chi^{2}/ndof", "Entries")
+h_nPxlHits = create_histogram("h_nPxlHits", "Displaced Global Muon Number of Pixel Hits", 15, 0, 15, "DGB Number of Pixel Hits", "Entries")
+h_nTrkHits = create_histogram("h_nTrkHits", "Displaced Global Muon Number of Tracker Hits", 40, 0, 40, "DGB Number of Tracker Hits", "Entries")
+h_nTOBHits = create_histogram("h_nTOBHits", "Displaced Global Muon Number of TOB Hits", 15, 0, 15, "DGB Number of TOB Hits", "Entries")
+h_nTrkLayers = create_histogram("h_nTrkLayers", "Displaced Global Muon Number of Tracker Layers", 20, 0, 20, "DGB Number of Tracker Layers", "Entries")
+h_nMuonHits = create_histogram("h_nMuonHits", "Displaced Global Muon Number of Muon Hits", 60, 0, 60, "DGB Number of Muon Hits", "Entries")
+h_nDTHits = create_histogram("h_nDTHits", "Displaced Global Muon Number of DT Hits", 50, 0, 50, "DGB Number of DT Hits", "Entries")
+h_nCSCHits = create_histogram("h_nCSCHits", "Displaced Global Muon Number of CSC Hits", 20, 0, 20, "DGB Number of CSC Hits", "Entries")
+h_DTStations = create_histogram("h_DTStations", "Displaced Global Muon Number of DT Stations", 10, 0, 10, "DGB Number of DT Stations", "Entries")
+h_CSCStations = create_histogram("h_CSCStations", "Displaced Global Muon Number of CSC Stations", 10, 0, 10, "DGB Number of CSC Stations", "Entries")
+h_MuonStations = create_histogram("h_MuonStations", "Displaced Global Muon Number of Muon Stations", 10, 0, 10, "DGB Number of Muon Stations", "Entries")
 
 # loop over the events and fill the histograms
 for j,event in enumerate(events):
@@ -230,26 +249,49 @@ for j,event in enumerate(events):
         gen_dgm_index = gu.getGenMuonIndex(dgmu, genMuonsAnalysis)
         if gen_dgm_index > -1:
             genMuon_dgm = genMuonsAnalysis[gen_dgm_index]
+#            if genMuon_dgm.pt() > 50: continue # skip high pT muons
             h_genpt_dgb.Fill(genMuon_dgm.pt())
             h_geneta_dgb.Fill(genMuon_dgm.eta())
+            h_genlxy_dgb.Fill(math.hypot(genMuon_dgm.vx(), genMuon_dgm.vy()))
 
-        # displaced global muon block
-        print(f"  DisplacedGlobalMuon {j}/{len(displacedMuons)}:")
-        print(f"    pT: {dgmu.pt():.3f} GeV")
-        print(f"    eta: {dgmu.eta():.3f}")
-        print(f"    phi: {dgmu.phi():.3f}")
-        print(f"    d0 (cm): {dgmu.d0():.4f} ")
-        print(f"    dxy (cm): {dgmu.dxy():.4f} ")
-        print(f"    chi2/ndof: {dgmu.normalizedChi2():.2f}")
-        print(f"    hits: {dgmu.numberOfValidHits()}")
-        print(f"    algo: {dgmu.algo()}") # the algos are not available for diplaced global muons. Why?
-        print(f"    originalAlgo: {dgmu.originalAlgo()}") 
-        print(f"    algoName: {dgmu.algoName()}") 
+            # displaced global muon block
+            print(f"  DisplacedGlobalMuon {j}/{len(displacedMuons)}:")
+            print(f"    pT: {dgmu.pt():.3f} GeV")
+            print(f"    eta: {dgmu.eta():.3f}")
+            print(f"    phi: {dgmu.phi():.3f}")
+            print(f"    d0 (cm): {dgmu.d0():.4f} ")
+            print(f"    dxy (cm): {dgmu.dxy():.4f} ")
+            print(f"    chi2/ndof: {dgmu.normalizedChi2():.2f}")
+            print(f"    hits: {dgmu.numberOfValidHits()}")
+            print(f"    algo: {dgmu.algo()}") # the algos are not available for diplaced global muons. Why?
+            print(f"    originalAlgo: {dgmu.originalAlgo()}") 
+            print(f"    algoName: {dgmu.algoName()}") 
 
-        # Fill displaced global muon histograms
-        h_pt.Fill(dgmu.pt())
-        h_eta.Fill(dgmu.eta())
-        h_d0.Fill(abs(dgmu.d0()))
+            # Fill displaced global muon histograms
+            h_pt.Fill(dgmu.pt())
+            h_eta.Fill(dgmu.eta())
+            h_d0.Fill(abs(dgmu.d0()))
+
+            # Quality variables for displaced global muons 
+            h_vx.Fill(dgmu.vx())
+            h_vy.Fill(dgmu.vy())
+            h_vz.Fill(dgmu.vz())
+            h_r.Fill(math.hypot(dgmu.vx(), dgmu.vy()))
+            h_ptError.Fill(dgmu.ptError())
+            h_chi2.Fill(dgmu.normalizedChi2())
+            h_nPxlHits.Fill(dgmu.hitPattern().numberOfValidPixelHits())
+            h_nTrkHits.Fill(dgmu.hitPattern().numberOfValidTrackerHits())
+            h_nTOBHits.Fill(dgmu.hitPattern().numberOfValidStripTOBHits())
+            h_nTrkLayers.Fill(dgmu.hitPattern().trackerLayersWithMeasurement())
+            h_nMuonHits.Fill(dgmu.hitPattern().numberOfValidMuonHits())
+            h_nDTHits.Fill(dgmu.hitPattern().numberOfValidMuonDTHits())
+            h_nCSCHits.Fill(dgmu.hitPattern().numberOfValidMuonCSCHits())
+            h_DTStations.Fill(dgmu.hitPattern().dtStationsWithValidHits())
+            h_CSCStations.Fill(dgmu.hitPattern().cscStationsWithValidHits())
+            h_MuonStations.Fill(dgmu.hitPattern().muonStationsWithValidHits())
+
+    #       import pdb
+    #       pdb.set_trace()
 
         # is it matched to a good displaced track?
         for k, dtrack in enumerate(displacedTracks):
@@ -314,23 +356,25 @@ for j,event in enumerate(events):
         total_muons += 1
 
         # debug seeds    
-        for i, seed in enumerate(seeds):
-            print(f"debug seed:{i}/{len(seeds)}")
-            recHitIt = seed.recHits().begin()
-            recHitEnd = seed.recHits().end()
-            hitCounter = 0
-            if recHitIt != recHitEnd:
-                if recHitIt.isValid() == True:
-                    print(f"  recHitIt.isValid(): {recHitIt.isValid()}")
-                    print(f"  recHitIt.getType(): {recHitIt.getType()}")
-                    print(f"  recHitIt.localPosition(): {recHitIt.geographicalId().det()}")
-                    print(f"  recHitIt.localPosition().x(): {recHitIt.localPosition().x()}")
-                    print(f"  recHitIt.localPosition().y(): {recHitIt.localPosition().y()}")
-                    print(f"  recHitIt.localPosition().z(): {recHitIt.localPosition().z()}")
-                recHitIt += 1
-                hitCounter += 1
-            print("nHits: ", hitCounter)
         h_nSeeds.Fill(len(seeds))
+        debugSeed = False
+        if debugSeed == True:
+            for i, seed in enumerate(seeds):
+                print(f"debug seed:{i}/{len(seeds)}")
+                recHitIt = seed.recHits().begin()
+                recHitEnd = seed.recHits().end()
+                hitCounter = 0
+                if recHitIt != recHitEnd:
+                    if recHitIt.isValid() == True:
+                        print(f"  recHitIt.isValid(): {recHitIt.isValid()}")
+                        print(f"  recHitIt.getType(): {recHitIt.getType()}")
+                        print(f"  recHitIt.localPosition(): {recHitIt.geographicalId().det()}")
+                        print(f"  recHitIt.localPosition().x(): {recHitIt.localPosition().x()}")
+                        print(f"  recHitIt.localPosition().y(): {recHitIt.localPosition().y()}")
+                        print(f"  recHitIt.localPosition().z(): {recHitIt.localPosition().z()}")
+                    recHitIt += 1
+                    hitCounter += 1
+                print("nHits: ", hitCounter)
         
         print("debug outInTracks")
         for i, outInTrack in enumerate(outInTracks):
@@ -391,6 +435,7 @@ create_and_save_plot(h_genpt_dsa, output_root, plots_dir, ROOT.kOrange)
 create_and_save_plot(h_geneta_dsa, output_root, plots_dir, ROOT.kOrange)
 create_and_save_plot(h_genpt_dgb, output_root, plots_dir, ROOT.kOrange)
 create_and_save_plot(h_geneta_dgb, output_root, plots_dir, ROOT.kOrange)
+create_and_save_plot(h_genlxy_dgb, output_root, plots_dir, ROOT.kOrange)
 
 create_and_save_plot(h_multiplicity_all, output_root, plots_dir, ROOT.kBlue)
 create_and_save_plot(h_multiplicity, output_root, plots_dir, ROOT.kBlue)
@@ -408,6 +453,23 @@ create_and_save_plot(h_dr_earlyOuter, output_root, plots_dir, ROOT.kRed)
 create_and_save_plot(h_pt_early, output_root, plots_dir, ROOT.kRed)
 create_and_save_plot(h_dr_early, output_root, plots_dir, ROOT.kRed)
 create_and_save_plot(h_nSeeds, output_root, plots_dir, ROOT.kRed)
+
+create_and_save_plot(h_vx, output_root, plots_dir, ROOT.kRed)
+create_and_save_plot(h_vy, output_root, plots_dir, ROOT.kRed)
+create_and_save_plot(h_vz, output_root, plots_dir, ROOT.kRed)
+create_and_save_plot(h_r, output_root, plots_dir, ROOT.kRed)
+create_and_save_plot(h_ptError, output_root, plots_dir, ROOT.kRed)
+create_and_save_plot(h_chi2, output_root, plots_dir, ROOT.kRed) 
+create_and_save_plot(h_nPxlHits, output_root, plots_dir, ROOT.kRed)
+create_and_save_plot(h_nTrkHits, output_root, plots_dir, ROOT.kRed)
+create_and_save_plot(h_nTOBHits, output_root, plots_dir, ROOT.kRed)
+create_and_save_plot(h_nTrkLayers, output_root, plots_dir, ROOT.kRed)
+create_and_save_plot(h_nMuonHits, output_root, plots_dir, ROOT.kRed)
+create_and_save_plot(h_nDTHits, output_root, plots_dir, ROOT.kRed)
+create_and_save_plot(h_nCSCHits, output_root, plots_dir, ROOT.kRed)
+create_and_save_plot(h_DTStations, output_root, plots_dir, ROOT.kRed)
+create_and_save_plot(h_CSCStations, output_root, plots_dir, ROOT.kRed)
+create_and_save_plot(h_MuonStations, output_root, plots_dir, ROOT.kRed)
 
 # Close the output ROOT file
 output_root.Close()
